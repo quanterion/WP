@@ -1,0 +1,8 @@
+<h2 mat-dialog-title i18n>Order</h2>
+<mat-dialog-content>
+  <app-client-editor [client]="order && order.client"></app-client-editor>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <span class="flex-auto"></span>
+  <button mat-raised-button color="primary" align="end" [disabled]="!clientEditor.form.valid" (click)="sendOrder()" i18n>OK</button>
+</mat-dialog-actions>

@@ -1,0 +1,309 @@
+<table class="mat-table pad-top-sm pad-left-md pad-right">
+  <tr class="mat-row">
+    <td class="mat-cell" i18n>Name</td>
+    <td class="mat-cell">
+      <mat-form-field [appearance]="fieldAppearance(editable)" [class.editable]="editable">
+        <input matInput class="model-name" [readonly]="!editable" [value]="name" (change)="setName($event.target.value)">
+      </mat-form-field>
+    </td>
+  </tr>
+  <tr class="mat-row">
+    <td class="mat-cell" i18n>Size</td>
+    <td class="mat-cell" *ngIf="sizeInfo">
+      <span class="model-size push-left-sm">{{sizeInfo.x | float}} x {{sizeInfo.y | float}} x {{sizeInfo.z | float}}</span>
+    </td>
+  </tr>
+
+  <tr class="mat-row" *ngIf="modelUnits">
+    <td class="mat-cell" i18n>Units</td>
+    <td class="mat-cell">
+      <mat-form-field>
+        <mat-select [(ngModel)]="modelUnits" [disabled]="!editable">
+          <mat-option value="mm" i18n>Millimeters</mat-option>
+          <mat-option value="cm" i18n>Centimiters</mat-option>
+          <mat-option value="m" i18n>Meters</mat-option>
+          <mat-option value="in" i18n>Inches</mat-option>
+          <mat-option value="pt" i18n>Points</mat-option>
+          <mat-option value="ft" i18n>Feet</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </td>
+  </tr>
+</table>
+
+<mat-accordion displayMode="flat">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Placing</mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <table class="mat-table">
+      <tr *ngIf="root" class="mat-row">
+        <td class="mat-cell" i18n>Mode</td>
+        <td class="mat-cell">
+          <mat-form-field>
+            <mat-select [value]="mountType" [disabled]="!editable" (selectionChange)="setMountType($event.value)">
+              <mat-option [value]="0" i18n>Default</mat-option>
+              <mat-option [value]="3" i18n>On the floor</mat-option>
+              <mat-option [value]="1" i18n>Window</mat-option>
+              <mat-option [value]="2" i18n>Door</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr class="mat-row">
+        <td class="mat-cell" i18n>Symmetry</td>
+        <td class="mat-cell" fxLayout="row" fxLayoutAlign="start center">
+          <mat-form-field fxFlex>
+            <mat-select [value]="symmetry" (selectionChange)="setSymmetry($event.value)" [disabled]="!editable">
+              <mat-option [value]="0" i18n>None</mat-option>
+              <mat-option [value]="-1" i18n>Left</mat-option>
+              <mat-option [value]="1" i18n>Right</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button (click)="symmetryModel()" [disabled]="!editable" class="push-left-sm">
+            <mat-icon>flip</mat-icon>
+          </button>
+        </td>
+      </tr>
+
+      <tr class="mat-row">
+        <td class="mat-cell" i18n>Layer</td>
+        <td class="mat-cell">
+          <mat-form-field [appearance]="fieldAppearance(editable)" [class.editable]="editable">
+            <input matInput class="model-layer" [readonly]="!editable" [value]="layerName" (change)="setLayerName($event.target.value)">
+          </mat-form-field>
+        </td>
+      </tr>
+
+      <tr class="mat-row">
+        <td class="mat-cell" i18n>Type</td>
+        <td class="mat-cell">
+          <mat-form-field [appearance]="fieldAppearance(editable)" [class.editable]="editable">
+            <input matInput class="model-type" [readonly]="!editable" [value]="type" (change)="setType($event.target.value)">
+          </mat-form-field>
+        </td>
+      </tr>
+    </table>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel *ngIf="modelProperties | async; let propList">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <span i18n>Visual properties</span>
+        <span *ngIf="propList.length" class="property-badge">{{propList.length}}</span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <table class="mat-table">
+      <tr class="mat-row" *ngFor="let p of propList">
+        <td class="mat-cell">
+          <span [matBadge]="p.elements.length > 1 ? p.elements.length : undefined" matBadgeOverlap="false" class="push-right"
+            (click)="selectPropertyElements(p)">{{p.name}}</span>
+        </td>
+        <td class="mat-cell" fxLayout="row" fxLayoutAlign="start center">
+          <mat-form-field fxFlex floatLabel="never">
+            <mat-select [ngModel]="p.value" (selectionChange)="propertyValueChanged(p, $event)" [disabled]="!editable"
+              panelClass="wide" placeholder="&#60; Different &#62;" i18n-placeholder>
+              <mat-select-trigger>
+                <img *ngIf="findMaterial(p); let material" [src]="material | thumbnail" class="material-thumbnail push-right-sm">
+                <span>{{p.valueName()}}</span>
+              </mat-select-trigger>
+              <mat-option *ngFor="let variant of p.variants" [value]="variant.id">
+                <img *ngIf="findMaterial(p, variant); let material" [src]="material | thumbnail" class="material-thumbnail push-right-sm">
+                <span>{{variant.name}}</span>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button (click)="editProperty($event, p)" *ngIf="editable">
+            <mat-icon>mode_edit</mat-icon>
+          </button>
+          <button mat-icon-button (click)="removeProperty($event, p)" *ngIf="editable">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </tr>
+    </table>
+    <div *ngIf="!propList.length" class="pad text-center mat-body-1" i18n>There are no properties assigned</div>
+
+    <mat-action-row>
+      <mat-slide-toggle [checked]="paint" fxFlex fxFlexAlign="center" (change)="setPaint($event)" i18n>Paint</mat-slide-toggle>
+      <button *ngIf="editable" mat-button color="primary" (click)="addPropertyDialog()">
+        <mat-icon class="md-24">add</mat-icon>
+        <span i18n>ADD</span>
+      </button>
+      <button *ngIf="editable" mat-button color="primary" (click)="createNewProperty()">
+        <mat-icon class="md-24">create</mat-icon>
+        <span i18n>CREATE</span>
+      </button>
+    </mat-action-row>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <span i18n>Parametric</span>
+        <span *ngIf="params.length" class="property-badge">{{params.length}}</span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <table class="mat-table">
+      <ng-container *ngIf="sizeInfo">
+        <tr class="mat-row">
+          <td class="mat-cell" i18n>Width</td>
+          <td class="mat-cell">
+            <mat-form-field [appearance]="fieldAppearance(sizeInfo.xe)" [class.editable]="sizeInfo.xe">
+              <input matInput [readonly]="!sizeInfo.xe" [value]="sizeInfo.x | float" class="model-width" (change)="resizeModel('#width', $event.target.value)">
+              <mat-checkbox matSuffix [checked]="sizeInfo.xe" (change)="applyElastic('x', $event.checked)"
+                matTooltip="Elastic" i18n-matTooltip></mat-checkbox>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr class="mat-row">
+          <td class="mat-cell" i18n>Height</td>
+          <td class="mat-cell">
+            <mat-form-field [appearance]="fieldAppearance(sizeInfo.ye)" [class.editable]="sizeInfo.ye">
+              <input matInput [readonly]="!sizeInfo.ye" [value]="sizeInfo.y | float" class="model-height" (change)="resizeModel('#height', $event.target.value)">
+              <mat-checkbox matSuffix [checked]="sizeInfo.ye" (change)="applyElastic('y', $event.checked)"
+                matTooltip="Elastic" i18n-matTooltip></mat-checkbox>
+            </mat-form-field>
+          </td>
+        </tr>
+        <tr class="mat-row">
+          <td class="mat-cell" i18n>Depth</td>
+          <td class="mat-cell">
+            <mat-form-field [appearance]="fieldAppearance(sizeInfo.ze)" [class.editable]="sizeInfo.ze">
+              <input matInput [readonly]="!sizeInfo.ze" [value]="sizeInfo.z | float" class="model-depth" (change)="resizeModel('#depth', $event.target.value)">
+              <mat-checkbox matSuffix [checked]="sizeInfo.ze" (change)="applyElastic('z', $event.checked)"
+                matTooltip="Elastic" i18n-matTooltip></mat-checkbox>
+            </mat-form-field>
+          </td>
+        </tr>
+
+        <tr class="mat-row">
+          <td class="mat-cell" i18n>Position</td>
+          <td class="mat-cell">
+            <mat-form-field>
+              <mat-select [value]="elasticItemPosition" [disabled]="!editable" (selectionChange)="setElasticItemPosition($event.value)">
+                <mat-option [value]="0" i18n>None</mat-option>
+                <mat-optgroup label="Align" i18n-label>
+                  <mat-option [value]="1" i18n>Fill</mat-option>
+                  <mat-option [value]="2" i18n>Left</mat-option>
+                  <mat-option [value]="3" i18n>Right</mat-option>
+                  <mat-option [value]="4" i18n>Bottom</mat-option>
+                  <mat-option [value]="5" i18n>Top</mat-option>
+                  <mat-option [value]="6" i18n>Back</mat-option>
+                  <mat-option [value]="7" i18n>Front</mat-option>
+                  <mat-option [value]="14" i18n>Left/Right</mat-option>
+                  <mat-option [value]="15" i18n>Bottom/Top</mat-option>
+                </mat-optgroup>
+                <mat-optgroup label="Position" i18n-label>
+                  <mat-option [value]="8" i18n>Vertical</mat-option>
+                  <mat-option [value]="9" i18n>Horizontal</mat-option>
+                </mat-optgroup>
+                <mat-optgroup label="Split" i18n-label>
+                  <mat-option [value]="11" i18n>Vertically</mat-option>
+                  <mat-option [value]="12" i18n>Horizontally</mat-option>
+                </mat-optgroup>
+              </mat-select>
+            </mat-form-field>
+          </td>
+        </tr>
+
+        <tr class="mat-row">
+          <td class="mat-cell" colspan="2">
+            <mat-slide-toggle [checked]="sizeInfo.container" (change)="setContainer($event)" i18n>Container</mat-slide-toggle>
+          </td>
+        </tr>
+      </ng-container>
+      <tr class="mat-row" *ngFor="let p of params; trackBy: paramTrackBy">
+        <td class="mat-cell">{{p.name}}</td>
+        <td class="mat-cell">
+          <mat-form-field *ngIf="!p.control" [appearance]="fieldAppearance(true)" class="editable">
+            <input *ngIf="!p.variants" matInput [value]="p.size | float" (change)="resizeModel(p.name, $event.target.value, p)">
+            <mat-select *ngIf="p.variants" [value]="p.size" (selectionChange)="resizeModel(p.name, $event.value, p)" panelClass="wide">
+              <mat-option *ngFor="let v of p.variants" [value]="v.value">{{v.name}}</mat-option>
+            </mat-select>
+            <span *ngIf="!p.variants" matSuffix i18n>mm</span>
+          </mat-form-field>
+          <mat-checkbox *ngIf="p.control" [checked]="!!p.size" (change)="resizeModel(p.name, $event.checked ? 1 : 0, p)"></mat-checkbox>
+        </td>
+      </tr>
+    </table>
+    <mat-action-row *ngIf="editable">
+      <button mat-button color="primary" (click)="addParameter()">
+        <mat-icon class="md-24">add</mat-icon>
+        <span i18n>ADD PARAMETER</span>
+      </button>
+    </mat-action-row>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Lighting</mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <app-light-editor [ds]="ds" [selectedOnly]="true" [manage]="editable"></app-light-editor>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Specification</mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <table class="mat-table">
+      <tr class="mat-row">
+        <td class="mat-cell" i18n>Display</td>
+        <td class="mat-cell">
+          <mat-form-field>
+            <mat-select [value]="elementBill" [disabled]="!editable" (selectionChange)="setElementBill($event.value)">
+              <mat-option [value]="ElementBill.Default" i18n>Default</mat-option>
+              <mat-option [value]="ElementBill.Article" i18n>Article</mat-option>
+              <mat-option [value]="ElementBill.Disabled" i18n>Disabled</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </tr>
+
+      <tr class="mat-row">
+        <td class="mat-cell" i18n>SKU</td>
+        <td class="mat-cell">
+          <mat-form-field [appearance]="fieldAppearance(editable)">
+            <input matInput class="model-type" [readonly]="!editable" [value]="elementSku" (change)="setElementSku($event.target.value)">
+          </mat-form-field>
+        </td>
+      </tr>
+
+      <tr class="mat-row">
+        <td class="mat-cell" i18n>Description</td>
+        <td class="mat-cell">
+          <mat-form-field [appearance]="fieldAppearance(editable)">
+            <input matInput class="model-type" [readonly]="!editable" [value]="elementDescription" (change)="setElementDescription($event.target.value)">
+          </mat-form-field>
+        </td>
+      </tr>
+
+      <tr class="mat-row">
+        <td class="mat-cell" i18n>Price</td>
+        <td class="mat-cell">
+          <mat-form-field [appearance]="fieldAppearance(editable)">
+            <input matInput class="model-type" [readonly]="!editable" [value]="elementPrice" (change)="setElementPrice($event.target.value)">
+          </mat-form-field>
+        </td>
+      </tr>
+    </table>
+  </mat-expansion-panel>
+</mat-accordion>
+<mat-expansion-panel *ngIf="file" expanded="true">
+  <mat-expansion-panel-header>
+    <mat-panel-title i18n>Icon</mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <div class="icon">
+    <img [src]="file | preview" tdFileDrop (fileDrop)="uploadThumbnail($event)">
+  </div>
+  <mat-action-row>
+    <button mat-button (click)="updateThumbnail()" *ngIf="editable">
+      <mat-icon class="md-24">refresh</mat-icon>
+      <span i18n>UPDATE ICON</span>
+    </button>
+  </mat-action-row>
+</mat-expansion-panel>

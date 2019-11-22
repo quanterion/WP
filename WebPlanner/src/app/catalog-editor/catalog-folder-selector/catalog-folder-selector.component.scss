@@ -1,0 +1,33 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+mat-list-item.selected, mat-list-item.selected.selectable:hover  {
+    background-color: cadetblue;
+}
+
+mat-list-item.selectable:hover {
+    background-color: antiquewhite;
+}
+
+mat-list-item:not(.selectable) {
+    color: silver;
+}
+
+mat-list-item.selectable {
+    cursor: pointer;
+}
+
+.empty-info {
+    display: none;
+}
+
+.empty-info:only-child {
+    display: block;
+    height: 200px;
+    text-align: center;
+    line-height: 100px;
+    color: gray;
+}

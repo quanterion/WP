@@ -1,0 +1,52 @@
+<mat-dialog-content class="mat-typography">
+  <mat-tab-group (selectedTabChange)="selectedTabChange($event)">
+    <mat-tab label="Model" i18n-label>
+      <mat-list class="push-top">
+        <h3 matLine>
+          <mat-icon>local_florist</mat-icon>
+          <span i18n>Objects</span>
+          <span>&nbsp;</span>
+          <span>{{ stats.objCount }}</span>
+        </h3>
+        <h3 matLine>
+          <mat-icon>wb_cloudy</mat-icon>
+          <span i18n>Meshes</span>
+          <span>&nbsp;</span>
+          <span>{{ stats.meshCount }}</span>
+        </h3>
+        <h3 matLine>
+          <mat-icon>crop</mat-icon>
+          <span i18n>Triangles</span>
+          <span>&nbsp;</span>
+          <span>{{ stats.triCount }}</span>
+        </h3>
+        <h3 matLine *ngIf="stats.selTriCount">
+          <mat-icon>crop</mat-icon>
+          <span i18n>Triangles in selection</span>
+          <span>&nbsp;</span>
+          <span>{{ stats.selTriCount }}</span>
+        </h3>
+      </mat-list>
+    </mat-tab>
+    <mat-tab label="History" i18n-label>
+      <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+      <mat-table [dataSource]="history" matSort #sortForDataSource="matSort">
+        <ng-container matColumnDef="index">
+          <mat-header-cell *matHeaderCellDef i18n mat-sort-header>#</mat-header-cell>
+          <mat-cell *matCellDef="let row">{{row.index}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef i18n>Name</mat-header-cell>
+          <mat-cell *matCellDef="let row">{{row.name}}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="size">
+          <mat-header-cell *matHeaderCellDef mat-sort-header i18n>Size</mat-header-cell>
+          <mat-cell *matCellDef="let row">{{row.size | bytes}}</mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+      </mat-table>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>

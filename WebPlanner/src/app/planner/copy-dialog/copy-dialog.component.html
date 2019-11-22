@@ -1,0 +1,52 @@
+<h1 mat-dialog-title i18n>Copy</h1>
+<mat-dialog-content>
+  <form #form="ngForm" novalidate>
+    <div class="input-wrapper">
+      <mat-form-field>
+        <input matInput
+              type="number"
+              #countinput
+              (focus)="handleInputFocus(countinput)"
+              (keydown.enter)="$event.preventDefault(); form.valid && accept()"
+              [(ngModel)]="value.count" name="count" min="1" max="20"
+              placeholder="Count" i18n-placeholder/>
+        <span matSuffix>&deg;</span>
+      </mat-form-field>
+    </div>
+    <div class="input-wrapper">
+      <span class="push-right" i18n>Direction</span>
+      <mat-radio-group [(ngModel)]="value.dir" name="dir">
+        <mat-radio-button [value]="0" class="push-right" i18n>Fill</mat-radio-button>
+        <mat-radio-button *ngIf="axis === 0" [value]="-1" class="push-right" i18n>Left</mat-radio-button>
+        <mat-radio-button *ngIf="axis === 0" [value]="1" class="push-right" i18n>Right</mat-radio-button>
+        <mat-radio-button *ngIf="axis === 1" [value]="1" class="push-right" i18n>Top</mat-radio-button>
+        <mat-radio-button *ngIf="axis === 1" [value]="-1" class="push-right" i18n>Bottom</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <div class="input-wrapper push-top">
+      <mat-form-field>
+        <input matInput
+              type="number"
+              #stepinput
+              [disabled]="!value.dir"
+              (focus)="handleInputFocus(stepinput)"
+              (keydown.enter)="$event.preventDefault(); form.valid && accept()"
+              [(ngModel)]="value.step" name="step"
+              placeholder="Step" i18n-placeholder/>
+        <span matSuffix>&deg;</span>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button
+          #closeBtn
+          (keydown.arrowright)="acceptBtn.focus()"
+          (click)="cancel()" i18n>CANCEL</button>
+  <button mat-raised-button
+          color="primary"
+          #acceptBtn
+          (keydown.arrowleft)="closeBtn.focus()"
+          [disabled]="!form.valid"
+          (click)="accept()" i18n>COPY</button>
+</mat-dialog-actions>

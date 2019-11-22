@@ -1,0 +1,30 @@
+div.logo {
+    img {
+        display: block;
+        margin: auto;
+    }
+
+    h2 {
+        text-align: center;
+        color: gray;
+    }
+}
+
+mat-card.login-wrapper {
+    box-shadow: none;
+}
+
+mat-form-field {
+    display: block;
+    min-width: 20vw;
+}
+
+mat-icon.showpassword {
+    cursor: pointer;
+}
+
+a.password-link {
+    color: gray;
+    display: inline;
+    margin: auto;
+}

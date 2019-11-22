@@ -1,0 +1,13 @@
+<ng-container *wpWait="data$ as data">
+  <img [src]="data.image">
+  <mat-dialog-actions align="end">
+    <button mat-raised-button color="primary" (click)="print(data)">
+      <mat-icon>print</mat-icon>
+      <span i18n>PRINT</span>
+    </button>
+    <button mat-raised-button color="primary" (click)="saveImage(data)">
+      <mat-icon>save</mat-icon>
+      <span i18n>SAVE IMAGE</span>
+    </button>
+  </mat-dialog-actions>
+</ng-container>

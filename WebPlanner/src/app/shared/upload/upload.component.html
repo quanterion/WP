@@ -1,0 +1,51 @@
+<div class="progress" *ngIf="uploadResponse$ | async; let resp; else uploadPreview">
+  <ng-container *ngIf="!(resp.error || (resp.failed && resp.failed.length > 0)); else error">
+    <h1 class="text-center push-bottom-xxl hint">Uploading file {{fileName}} of size {{fileSize | bytes}}</h1>
+    <mat-progress-bar class="pr" [mode]="getProgressMode(resp)" [value]="resp.progress"></mat-progress-bar>
+    <div *ngIf="resp.progress" class="text-center push-top hint">
+      <span *ngIf="resp.progress === -2" i18n>Compression</span>
+      <span *ngIf="resp.progress === -1" i18n>Sending request</span>
+      <span *ngIf="resp.progress === 100" i18n>Convertation</span>
+      <span *ngIf="resp.progress > 0 && resp.progress < 100" i18n>Uploading {{resp.progress}}%</span>
+    </div>
+  </ng-container>
+  <ng-template #error>
+    <app-message label="Error" i18n-label color="warn" icon="error">
+      <button mat-button class="cancel pad-xs" (click)="close()">
+        <mat-icon mat-list-icon>clear</mat-icon>
+      </button>
+      <ng-container *ngIf="resp.error" [ngSwitch]="resp.errorStatus">
+        <span *ngSwitchCase="413" i18n>Too large uploading file</span>
+        <span *ngSwitchCase="500" i18n>Internal server error</span>
+        <span *ngSwitchCase="504" i18n>Gateway timeout</span>
+        <span *ngSwitchDefault i18n>Unknown error ({{resp.errorStatus}})</span>
+        <span i18n>{{resp.error}}</span>
+      </ng-container>
+      <span *ngIf="resp.failed && resp.failed.length > 0"
+        i18n>Failed to import file</span>
+    </app-message>
+  </ng-template>
+</div>
+
+<ng-template #uploadPreview>
+  <div class="uploadWindow">
+    <h1 class="text-center push hint">Uploading file</h1>
+    <button mat-button class="cancel push-xs" (click)="close()">
+      <mat-icon mat-list-icon>clear</mat-icon>
+    </button>
+    <div fxLayout [style.height.%]="95">
+      <div fxFlex fxLayout fxLayoutAlign="center center" (drop)="dropHandler($event, folderId)"
+        (dragover)="dragOverHandler($event)">
+        <span class="hint text-xxl" i18n>You can drop 3D model files here</span>
+      </div>
+      <mat-divider [vertical]="true"></mat-divider>
+      <div fxFlex fxLayout fxLayoutAlign="center center">
+        <button mat-button class="conf-button push-bottom-sm" (click)="fileInput.click()">
+          <mat-icon mat-list-icon>archive</mat-icon>
+          <span class=" test" i18n>SELECT MODEL FILE</span>
+        </button>
+        <input class="upload" type="file" #fileInput [style.display]="'none'" (change)="handleFileInput($event, folderId)">
+      </div>
+    </div>
+  </div>
+</ng-template>

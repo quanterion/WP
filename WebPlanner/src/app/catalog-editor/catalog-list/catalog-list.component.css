@@ -1,0 +1,26 @@
+.app-action {
+  display: inline-block;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 5;
+}
+
+.catalog-name {
+  flex: 1 1 auto;
+}
+
+mat-card {
+  margin: 0px;
+  margin-bottom: 4px;
+}
+
+mat-nav-list a[mat-list-item] {
+  height: 74px;
+}
+
+a img.catalog-image {
+  height: 64px;
+  width: auto;
+  border-radius: 0px;
+}

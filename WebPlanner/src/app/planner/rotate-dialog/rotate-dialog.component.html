@@ -1,0 +1,37 @@
+<h1 mat-dialog-title i18n>Rotate selected objects</h1>
+<mat-dialog-content>
+  <form #form="ngForm" novalidate>
+    <div class="input-wrapper">
+      <mat-form-field>
+        <input matInput
+              type="number"
+              #angleinput
+              (focus)="handleInputFocus(angleinput)"
+              (keydown.enter)="$event.preventDefault(); form.valid && accept()"
+              [(ngModel)]="value.angle" name="angle"
+              placeholder="Rotation angle" i18n-placeholder/>
+        <span matSuffix>&deg;</span>
+      </mat-form-field>
+    </div>
+    <div class="input-wrapper">
+      <span class="push-right" i18n>Axis</span>
+      <mat-radio-group [(ngModel)]="value.axis" name="axis">
+        <mat-radio-button [value]="0" class="push-right">X</mat-radio-button>
+        <mat-radio-button [value]="1" class="push-right">Y</mat-radio-button>
+        <mat-radio-button [value]="2" class="push-right">Z</mat-radio-button>
+      </mat-radio-group>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button
+          #closeBtn
+          (keydown.arrowright)="acceptBtn.focus()"
+          (click)="cancel()" i18n>CANCEL</button>
+  <button mat-raised-button
+          color="primary"
+          #acceptBtn
+          (keydown.arrowleft)="closeBtn.focus()"
+          [disabled]="!form.valid"
+          (click)="accept()" i18n>ROTATE</button>
+</mat-dialog-actions>

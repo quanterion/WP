@@ -1,0 +1,244 @@
+<div *ngIf="type; let t" fxFlex="none" fxLayout="row" fxLayoutAlign="start center" [style.min-height.px]="64">
+  <mat-icon svgIcon="properties" class="push"></mat-icon>
+  <h4 *ngIf="t === 1" i18n>{count, plural, =1 {1 item selected} other {{{count}} items selected}}</h4>
+  <h4 *ngIf="t === 2" i18n>Floor plan</h4>
+  <h4 *ngIf="t === 3" i18n>Wall</h4>
+  <h4 *ngIf="t === 4" i18n>Room</h4>
+  <span fxFlex></span>
+  <button mat-icon-button (click)="close.next()" matTooltip="Close"
+    i18n-matTooltip>
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+<table>
+  <tr>
+    <td i18n>Name</td>
+    <td>
+      <mat-form-field appearance="outline">
+        <input matInput align="end" [value]="name" (change)="renameSelection($event.target.value)">
+      </mat-form-field>
+      <div class="pad-sm mat-caption" *ngIf="description">{{description}}</div>
+    </td>
+  </tr>
+  <tr *ngIf="price">
+    <td i18n>Price</td>
+    <td>
+      <div class="push">{{price | float}} &#8381;</div>
+    </td>
+  </tr>
+  <ng-container *ngIf="sizeInfo">
+    <tr>
+      <td i18n>Width</td>
+      <td>
+        <mat-form-field *ngIf="sizeInfo.xe" appearance="outline">
+          <input matInput align="end" [value]="sizeInfo.x | float" (change)="resizeModel('#width', $event.target.value)">
+        </mat-form-field>
+        <div *ngIf="!sizeInfo.xe" class="push">{{sizeInfo.x | float}}</div>
+      </td>
+    </tr>
+    <tr>
+      <td i18n>Height</td>
+      <td>
+        <mat-form-field *ngIf="sizeInfo.ye" appearance="outline">
+          <input matInput align="end" [value]="sizeInfo.y | float" (change)="resizeModel('#height', $event.target.value)">
+        </mat-form-field>
+        <div *ngIf="!sizeInfo.ye" class="push">{{sizeInfo.y | float}}</div>
+      </td>
+    </tr>
+    <tr>
+      <td i18n>Depth</td>
+      <td>
+        <mat-form-field *ngIf="sizeInfo.ze" appearance="outline">
+          <input matInput align="end" [value]="sizeInfo.z | float" (change)="resizeModel('#depth', $event.target.value)">
+        </mat-form-field>
+        <div *ngIf="!sizeInfo.ze" class="push">{{sizeInfo.z | float}}</div>
+      </td>
+    </tr>
+  </ng-container>
+  <tr *ngIf="verticalPos !== undefined">
+    <td i18n>Height above floor</td>
+    <td>
+      <mat-form-field appearance="outline">
+        <input matInput align="end" [value]="verticalPos | float" (change)="moveModel(1, verticalPos, $event.target.value)">
+      </mat-form-field>
+    </td>
+  </tr>
+  <ng-container *ngIf="wall">
+    <tr>
+      <td i18n>Thickness</td>
+      <td>
+        <mat-form-field appearance="outline">
+          <input matInput align="end" [value]="wall.thickness | float" (change)="setWallThickness($event.target.value)">
+        </mat-form-field>
+      </td>
+    </tr>
+    <tr>
+      <td i18n>Height</td>
+      <td>
+        <mat-form-field appearance="outline">
+          <input matInput align="end" [value]="wall.height | float" (change)="setWallHeight($event.target.value)">
+        </mat-form-field>
+      </td>
+    </tr>
+    <tr>
+      <td i18n>Baseline</td>
+      <td>
+        <mat-form-field>
+          <mat-select [(ngModel)]="wallBaseline">
+            <mat-option value="-1" i18n>right</mat-option>
+            <mat-option value="0" i18n>middle</mat-option>
+            <mat-option value="1" i18n>left</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </td>
+    </tr>
+  </ng-container>
+  <ng-container *ngIf="roof">
+    <tr>
+      <td i18n>Type</td>
+      <td>
+        <mat-form-field>
+          <mat-select [ngModel]="roof.type" (selectionChange)="applyRoofType($event)">
+            <mat-option [value]="RoofType.Shed" i18n>Shed</mat-option>
+            <mat-option [value]="RoofType.Gable" i18n>Gable</mat-option>
+            <mat-option [value]="RoofType.Hip" i18n>Hip</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-icon-button (click)="rotateRoof()" matTooltip="Rotate roof" i18n-matTooltip>
+          <mat-icon>rotate_90_degrees_ccw</mat-icon>
+        </button>
+      </td>
+    </tr>
+    <tr>
+      <td i18n>Length</td>
+      <td>
+        <mat-form-field appearance="outline">
+          <input matInput align="end" [value]="roof.length | float" (change)="resizeRoof(0, $event.target.value)">
+        </mat-form-field>
+      </td>
+    </tr>
+    <tr>
+      <td i18n>Width</td>
+      <td>
+        <mat-form-field appearance="outline">
+          <input matInput align="end" [value]="roof.width | float" (change)="resizeRoof(1, $event.target.value)">
+        </mat-form-field>
+      </td>
+    </tr>
+    <tr>
+      <td i18n>Height</td>
+      <td>
+        <mat-form-field appearance="outline">
+          <input matInput align="end" [value]="roof.height | float" (change)="resizeRoof(2, $event.target.value)">
+        </mat-form-field>
+      </td>
+    </tr>
+    <tr>
+      <td i18n>Thickness</td>
+      <td appearance="outline">
+        <mat-form-field>
+          <input matInput align="end" [value]="(roof.thickness || 5) | float" (change)="resizeRoof(3, $event.target.value)">
+        </mat-form-field>
+      </td>
+    </tr>
+    <tr>
+      <td i18n>Offset</td>
+      <td appearance="outline">
+        <mat-form-field>
+          <input matInput align="end" [value]="(roof.offset || 100) | float" (change)="resizeRoof(4, $event.target.value)">
+        </mat-form-field>
+      </td>
+    </tr>
+  </ng-container>
+  <ng-container *ngIf="room">
+    <tr *ngIf="room.height">
+      <td i18n>Height</td>
+      <td>
+        <mat-form-field appearance="outline">
+          <input matInput align="end" [value]="room.height | float" (change)="setWallHeight($event.target.value)">
+        </mat-form-field>
+      </td>
+    </tr>
+    <tr *ngIf="room.area">
+      <td i18n>Area</td>
+      <td class="pad">{{room.area}} m
+        <sup>2</sup>
+      </td>
+    </tr>
+    <tr *ngIf="room.perimeter">
+      <td i18n>Perimeter</td>
+      <td class="pad">{{room.perimeter}} m</td>
+    </tr>
+  </ng-container>
+
+  <tr *ngFor="let p of params; trackBy: paramTrackBy">
+    <td>{{p.name}}</td>
+    <td>
+      <mat-form-field *ngIf="!p.control" [appearance]="fieldAppearance(true)" class="editable">
+        <input *ngIf="!p.variants" matInput [value]="p.size | float" (change)="resizeModel(p.name, $event.target.value, p)">
+        <mat-select *ngIf="p.variants" [value]="p.size" (selectionChange)="resizeModel(p.name, $event.value, p)" panelClass="wide">
+          <mat-option *ngFor="let v of p.variants" [value]="v.value">{{v.name}}</mat-option>
+        </mat-select>
+        <span *ngIf="!p.variants" matSuffix i18n>mm</span>
+      </mat-form-field>
+      <mat-checkbox *ngIf="p.control" [checked]="!!p.size" (change)="resizeModel(p.name, $event.checked ? 1 : 0, p)"></mat-checkbox>
+    </td>
+  </tr>
+
+  <tr *ngIf="material">
+    <td>
+      <span i18n>Material</span>
+    </td>
+    <td class="mat-cell">
+      <div class="push-sm">{{material?.name}}</div>
+      <button mat-raised-button (click)="chooseMaterial()" i18n>CHANGE</button>
+    </td>
+  </tr>
+
+  <ng-container *ngFor="let p of modelProperties | async">
+    <tr>
+      <td>
+        <button *ngIf="p.elements.length > 1" mat-icon-button (click)="toggleProperty(p)">
+          <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+        <span>{{p.name}}</span>
+      </td>
+      <td>
+        <mat-form-field floatLabel="never">
+          <mat-select [value]="p.value" (selectionChange)="propertyValueChanged(p, $event)" panelClass="wide"
+            placeholder="&#60; Different &#62;" i18n-placeholder>
+            <mat-select-trigger>
+              <img *ngIf="findMaterial(p); let material" [src]="material | thumbnail" class="material-thumbnail push-right-sm">
+              <span>{{p.valueName()}}</span>
+            </mat-select-trigger>
+            <mat-option *ngFor="let variant of p.variants" [value]="variant.id">
+              <img *ngIf="findMaterial(p, variant); let material" [src]="material | thumbnail" class="material-thumbnail push-right-sm">
+              <span>{{variant.name}}</span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </td>
+    </tr>
+    <ng-container *ngIf="isPropertyOpened(p)">
+      <tr *ngFor="let elem of p.elements">
+        <td>
+          <div class="push-md">{{elem.e.name}}</div>
+        </td>
+        <td>
+          <mat-form-field>
+            <mat-select [value]="elem.value" (selectionChange)="propertyValueChanged(p, $event, elem.e)">
+              <mat-select-trigger>
+                <img *ngIf="findValueMaterial(p, elem.value); let material" [src]="material | thumbnail" class="material-thumbnail push-right-sm">
+                <span>{{p.valueName(elem.value)}}</span>
+              </mat-select-trigger>
+              <mat-option *ngFor="let variant of p.variants" [value]="variant.id">
+                <img *ngIf="findMaterial(p, variant); let material" [src]="material | thumbnail" class="material-thumbnail push-right-sm">
+                <span>{{variant.name}}</span>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </tr>
+    </ng-container>
+  </ng-container>
+</table>

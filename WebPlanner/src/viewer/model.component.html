@@ -1,0 +1,127 @@
+<mat-toolbar *ngIf="file$ | async; let f">
+  <a i18n-matTooltip matTooltip="BACK" mat-icon-button (click)="goToPreviousPage()">
+    <mat-icon>arrow_back</mat-icon>
+  </a>
+  <mat-divider [vertical]="true"></mat-divider>
+  <span class="name">{{f.name}}</span>
+
+  <button mat-icon-button [disabled]="!hasAnimations" (click)="animate()" i18n-matTooltip matTooltip="Animate">
+    <mat-icon>play_arrow</mat-icon>
+  </button>
+  <button mat-icon-button (click)="generateViewLink()">
+    <mat-icon>link</mat-icon>
+  </button>
+  <button mat-icon-button (click)="measureDistance()" i18n-matTooltip matTooltip="Measure">
+    <mat-icon>keyboard_tab</mat-icon>
+  </button>
+  <button class="menu-trigger" mat-icon-button [mat-menu-trigger-for]="modelerMenu">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+
+  <mat-menu #modelerMenu="matMenu" overlapTrigger="false">
+    <ng-container *ngTemplateOutlet="renderMenus"></ng-container>
+    <hr>
+    <button mat-menu-item [matMenuTriggerFor]="exportMenu">
+      <mat-icon>file_download</mat-icon>
+      <span i18n>Download model</span>
+    </button>
+    <button *ngIf="editable || auth.admin" mat-menu-item (click)="showMaterialEditor = !showMaterialEditor">
+      <mat-icon [class.hidden]="!showMaterialEditor">check</mat-icon>
+      <span i18n>Materials</span>
+    </button>
+    <button *ngIf="editable || auth.admin" mat-menu-item (click)="showTree = !showTree">
+      <mat-icon [class.hidden]="!showTree">check</mat-icon>
+      <span i18n>Model tree</span>
+    </button>
+  </mat-menu>
+  <mat-menu #exportMenu="matMenu">
+    <ng-template matMenuContent>
+      <button mat-menu-item (click)="downloadFile(f, 'b3d')" target="_blank">Базис-Мебельщик</button>
+      <button mat-menu-item (click)="downloadFile(f, 'c3d')" target="_blank">KOMPAS 3D</button>
+      <button mat-menu-item (click)="downloadFile(f, 'stp')" target="_blank">STEP (MCAD)</button>
+      <button mat-menu-item (click)="downloadFile(f, '3ds')" target="_blank">AUTODESK (3DS)</button>
+      <button mat-menu-item (click)="downloadFile(f, 'dae')" target="_blank">COLLADA (DAE)</button>
+      <button mat-menu-item (click)="downloadFile(f, 'glb')" target="_blank">GLTF (GLB)</button>
+    </ng-template>
+  </mat-menu>
+
+  <ng-container *ngIf="designer && !isDefaultAction">
+    <span class="pad">{{actionHint}}</span>
+    <button mat-raised-button (click)="cancelAction()" color="accent" i18n>CANCEL</button>
+  </ng-container>
+</mat-toolbar>
+<div fxFlex fxLayout="row" [style.position]="'relative'" class="select-none">
+  <div fxFlex class="relative">
+    <canvas
+      id="canvas3d"
+      #modelcanvas oncontextmenu="return false;"
+      (mouseup)="canvasMouseup($event)"
+      (dblclick)="canvasDoubleClick($event)"
+      (drop)="dropTexture($event)"
+      (dragover)="onDragOver($event)">
+    </canvas>
+    <div class="zoom-bar">
+      <button mat-button (click)="zoomToFit()" matTooltip="Zoom out" i18n-matTooltip>
+        <mat-icon>zoom_out_map</mat-icon>
+      </button>
+      <button mat-button (click)="zoomIn()">+</button>
+      <button mat-button (click)="zoomOut()">-</button>
+    </div>
+    <mat-progress-spinner *ngIf="loadingIndicator$ | async" mode="indeterminate"></mat-progress-spinner>
+  </div>
+  <ng-container *ngIf="(fullView$ | async); else compactControls">
+    <app-model-tree *ngIf="showTree" class="side-tree" [ds]="designer"></app-model-tree>
+
+    <div *ngIf="showMaterialEditor && (auth.isAuthenticated | async)" class="materials relative" fxLayout="column"
+      [@materialPanelAnimation]="showMaterialEditor" (@materialPanelAnimation.done)="animationDone($event)">
+      <mat-toolbar>
+        <span fxFlex i18n>Materials</span>
+        <button mat-icon-button (click)="showMaterialEditor = false">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-toolbar>
+      <mat-nav-list fxFlex class="overflow-auto">
+        <mat-list-item class="test-file-item" *ngFor="let m of usedMaterials" (click)=selectMaterial(m)>
+          <img mat-list-avatar class="drop-target" [src]="m | thumbnail" tdFileDrop (fileDrop)="uploadTexture(m, $event)">
+          <span fxFlex class="item-name">{{m.name}}</span>
+          <mat-divider></mat-divider>
+        </mat-list-item>
+      </mat-nav-list>
+      <div *ngIf="selectedMaterial" class="selected-material" [@materialPanelAnimation]="selectedMaterialState">
+        <app-material-view [material]="selectedMaterial" (change)="materialParamChanged($event)" [closable]="true"
+          (close)="closeMaterialEditor()">
+        </app-material-view>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #compactControls>
+  <button mat-icon-button class="compact" [matMenuTriggerFor]="compactMenu">
+    <mat-icon>menu</mat-icon>
+  </button>
+</ng-template>
+
+<mat-menu #compactMenu="matMenu" overlapTrigger="false">
+  <ng-container *ngTemplateOutlet="renderMenus"></ng-container>
+</mat-menu>
+
+<ng-template #renderMenus>
+  <button mat-menu-item (click)="zoomToFit()">
+    <mat-icon>zoom_out_map</mat-icon>
+    <span i18n>Zoom to fit</span>
+  </button>
+  <hr>
+  <button mat-menu-item (click)="shadeMode = RenderMode.Shaded">
+    <mat-icon [class.hidden]="shadeMode !== RenderMode.Shaded">radio_button_checked</mat-icon>
+    <span i18n>Shaded</span>
+  </button>
+  <button mat-menu-item (click)="shadeMode = RenderMode.ShadedWithEdges">
+    <mat-icon [class.hidden]="shadeMode !== RenderMode.ShadedWithEdges">radio_button_checked</mat-icon>
+    <span i18n>Shaded with edges</span>
+  </button>
+  <button mat-menu-item (click)="shadeMode = RenderMode.HiddenEdgesVisible">
+    <mat-icon [class.hidden]="shadeMode !== RenderMode.HiddenEdgesVisible">radio_button_checked</mat-icon>
+    <span i18n>Wireframe</span>
+  </button>
+</ng-template>

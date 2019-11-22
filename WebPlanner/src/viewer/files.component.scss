@@ -1,0 +1,50 @@
+:host {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+div.fill {
+  flex: auto;
+}
+button.withFiles {
+  position: absolute;
+  right: 8px;
+  top: 16px;
+}
+
+.selected {
+    background-color: rgb(219, 219, 219);
+}
+
+mat-nav-list.catalogs {
+    overflow-y: auto;
+    max-height: 550px;
+}
+
+mat-nav-list {
+  overflow-y: auto;
+  max-height: 65%;
+}
+
+mat-nav-list>mat-list-item.material-item {
+  height: 256px;
+}
+
+img.mat-list-avatar.material-avatar {
+  width: 256px;
+  height: 256px;
+  padding: 4px;
+}
+
+div.progress-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -50px 0 0 -50px;
+  pointer-events: none;
+}

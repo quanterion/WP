@@ -1,0 +1,24 @@
+mat-dialog-content {
+    min-width: 40vw;
+}
+
+mat-form-field {
+    display: block;
+}
+
+img {
+    height: 64px;
+    width: auto;
+}
+
+button.remove-thumbnail {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    display: none;
+}
+
+div.image:hover button {
+    display: block;
+}

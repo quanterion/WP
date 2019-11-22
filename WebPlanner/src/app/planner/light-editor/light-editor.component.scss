@@ -1,0 +1,17 @@
+mat-card {
+    margin: 0px;
+    margin-top: 4px;
+}
+
+:host {
+    overflow-y: auto;
+}
+
+mat-icon.light {
+    vertical-align: middle;
+    margin-left: 8px;
+}
+
+button.create {
+    float: right;
+}

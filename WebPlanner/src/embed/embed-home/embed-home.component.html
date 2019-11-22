@@ -1,0 +1,9 @@
+<button *ngIf="lastProjectId" class="btn-last" mat-raised-button color="primary" (click)="embed.goToProject(lastProjectId)" i18n>OPEN LAST PROJECT</button>
+
+<div class="main">
+    <div class="logo">
+        <img src="./misc/logo.png">
+    </div>
+
+    <app-new-project (afterCreate)="afterProjectCreate($event)"></app-new-project>
+</div>

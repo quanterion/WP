@@ -1,0 +1,33 @@
+<h1 mat-dialog-title i18n>Batch model editor</h1>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <div fxLayout="row" class="field">
+      <mat-icon role="img" class="push-right">link</mat-icon>
+      <mat-form-field fxFlex>
+        <input matInput placeholder="Name mask" i18n-placeholder [formControl]="mask" class="catalog">
+      </mat-form-field>
+    </div>
+    <div fxLayout="row">
+      <mat-icon role="img" class="push-right">account_circle</mat-icon>
+      <mat-form-field fxFlex>
+        <mat-select placeholder="Command" i18n-placeholder [formControl]="command">
+          <mat-option value="count" i18n>Count</mat-option>
+          <mat-option value="compress" i18n>Compress</mat-option>
+          <mat-option value="rebuild" i18n>Rebuild</mat-option>
+          <mat-option value="fix-cuts" i18n>Fix cuts</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <ng-container *ngIf="!progress$">
+      <span class="flex-auto"></span>
+      <button mat-raised-button color="primary" [disabled]="!form.valid" (click)="run()" i18n>RUN</button>
+  </ng-container>
+  <app-job-progress-bar [value]="progress$ | async" #bar>
+    <app-message *ngIf="bar.value && bar.value.result" class="success" color="primary" icon="info"
+      i18n>Successfully processed {{bar.value.result.models}} models</app-message>
+    <button mat-raised-button color="primary" mat-dialog-close i18n>CLOSE</button>
+  </app-job-progress-bar>
+</mat-dialog-actions>

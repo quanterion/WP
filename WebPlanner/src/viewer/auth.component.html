@@ -1,0 +1,12 @@
+<div fxLayout="column">
+  <p class="push-top-xxl" fxFlexAlign="center" *ngIf="error$ | async; else loading">
+    <span i18n>Failed to login</span>
+  </p>
+  <a fxFlexAlign="center" mat-button class="conf-button size-width-100" routerLink="/login" i18n>Login</a>
+</div>
+<ng-template fxFlexAlign="center" #loading>
+  <div fxLayout="column" fxFlexOffset="50px" fxLayoutAlign="center">
+    <mat-spinner fxFlexAlign="center"></mat-spinner>
+    <span fxFlexAlign="center" i18n>Auth in progress</span>
+  </div>
+</ng-template>

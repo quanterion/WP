@@ -1,0 +1,129 @@
+<mat-toolbar *ngIf="editable">
+  <mat-toolbar-row>
+    <ng-container *ngIf="caption">
+      <button mat-icon-button (click)="goToParentFolder()" [disabled]="!canGoToParentFolder()"
+        matTooltip="Up" i18n-matTooltip>
+        <mat-icon>reply</mat-icon>
+      </button>
+      <button mat-icon-button (click)="showCurrentFolderProperties()"  matTooltip="Folder properties" i18n-matTooltip>
+          <mat-icon>folder_open</mat-icon>
+      </button>
+      <span class="push-right">{{caption}}</span>
+    </ng-container>
+    <button mat-icon-button (click)="addFolder()"
+      matTooltip="Add folder" i18n-matTooltip>
+      <mat-icon>create_new_folder</mat-icon>
+    </button>
+    <span fxFlex></span>
+    <button mat-icon-button *ngIf="selectedFiles.length < 1" class="batch"
+      (click)="batchEditor()" matTooltip="Batch model editor" i18n-matTooltip>
+      <mat-icon>assignment</mat-icon>
+    </button>
+    <button mat-icon-button *ngIf="selectedFiles.length < 1" class="sync"
+      (click)="syncContent()" matTooltip="Sync folder" i18n-matTooltip>
+      <mat-icon>sync</mat-icon>
+    </button>
+    <ng-container *ngIf="selectedFiles && selectedFiles.length > 0">
+      <button mat-icon-button (click)="showFileProperties($event)"
+        matTooltip="Properties" i18n-matTooltip>
+        <mat-icon>list_alt</mat-icon>
+      </button>
+      <button mat-icon-button (click)="moveFiles()"
+        matTooltip="Move to..." i18n-matTooltip>
+        <mat-icon>forward</mat-icon>
+      </button>
+      <button mat-icon-button (click)="removeFiles()" *ngIf="selectedFiles && selectedFiles.length > 0"
+        matTooltip="Remove" i18n-matTooltip>
+        <mat-icon>delete</mat-icon>
+      </button>
+    </ng-container>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<mat-table *ngIf="!empty; else emptyInfo" class="explorer"
+  [dataSource]="files" matSort #sortForDataSource="matSort"
+  tdFileDrop [multiple]="true" (fileDrop)="uploadFiles($event)">
+
+  <ng-container matColumnDef="name">
+    <mat-header-cell *matHeaderCellDef mat-sort-header>
+      <button *ngIf="!editable" mat-button class="push-right" (click)="goToParentFolder()"
+        [disabled]="!canGoToParentFolder()" matTooltip="Up" i18n-matTooltip>
+        <mat-icon>reply</mat-icon>
+        <span>{{caption}}</span>
+      </button>
+      <span i18n>Name</span>
+    </mat-header-cell>
+    <mat-cell *matCellDef="let row">
+      <div fxLayout="row">
+        <a [routerLink]="getFileLink(row)" (click)="fileLinkClicked($event)">
+          <div class="image-container">
+            <img class="model-image" [src]="row | preview" tdFileDrop (fileDrop)="uploadThumbnailOrModel(row, $event)">
+          </div>
+          <span>{{row.name}}</span>
+        </a>
+      </div>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="price">
+    <mat-header-cell *matHeaderCellDef mat-sort-header i18n>Price</mat-header-cell>
+    <mat-cell *matCellDef="let row">
+      <span *ngIf="!row.folder" (click)="showFileProperties($event, row, 'price')">{{row.price}}</span>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="sku">
+    <mat-header-cell *matHeaderCellDef mat-sort-header i18n>SKU</mat-header-cell>
+    <mat-cell *matCellDef="let row">
+        <div *ngIf="!row.folder" (click)="showFileProperties($event, row, 'sku')">
+          <span *ngIf="!row.sku">-</span>
+          <span *ngIf="row.sku">{{row.sku}}</span>
+        </div>
+    </mat-cell>
+  </ng-container>
+
+  <ng-container matColumnDef="value">
+    <mat-header-cell fxLayout="row" *matHeaderCellDef mat-sort-header>
+      <span *ngIf="lastColumnText" fxFlex>{{lastColumnText}}</span>
+      <span *ngIf="!lastColumnText" fxFlex i18n>Date modified</span>
+      <button *ngIf="editable || auth.admin" mat-icon-button class="last-column-button"
+        [matMenuTriggerFor]="columnMenu" (click)="$event.stopPropagation()">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </mat-header-cell>
+    <mat-cell *matCellDef="let file">{{lastColumnValue(file)}}</mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns"
+    [class.selected]="row.selected" [class.hidden]="!row.shared"
+    (click)="rowClicked($event, row)" (dblclick)="showFileProperties($event, row)">
+  </mat-row>
+</mat-table>
+
+<mat-menu #columnMenu="matMenu">
+  <button mat-menu-item (click)="setValueColumn($event)" i18n>Date modified</button>
+  <button mat-menu-item data-value="4" data-arg="1" (click)="setValueColumn($event)" i18n>Mesh size</button>
+  <button mat-menu-item data-value="1" data-arg="0" (click)="setValueColumn($event)" i18n>Model width</button>
+  <button mat-menu-item data-value="1" data-arg="1" (click)="setValueColumn($event)" i18n>Model height</button>
+  <button mat-menu-item data-value="1" data-arg="2" (click)="setValueColumn($event)" i18n>Model depth</button>
+</mat-menu>
+
+<td-file-upload *ngIf="editable" defaultColor="accent"
+    [accept]="modelExtensionsFilter"
+    matTooltip="KOMPAS(c3d), 3DS, OBJ, DAE, STL, STEP, IGES, VRML(wrl), Parasolid(x_t, x_b), ACIS(sat), JT models, Blender(blend)"
+    matTooltipPosition="above" i18n-matTooltipstep
+    activeColor="warn" cancelColor="primary" multiple (select)="uploadFiles($event)">
+  <mat-icon>file_upload</mat-icon>
+  <ng-template td-file-input-label>
+    <mat-icon>attach_file</mat-icon><span i18n>Upload models...</span>
+  </ng-template>
+</td-file-upload>
+
+<ng-template #emptyInfo>
+  <div fxLayout="column" fxLayoutAlign="center center" class="empty tc-grey-500 pad-sm"
+    tdFileDrop [multiple]="true" (fileDrop)="uploadFiles($event)">
+    <mat-icon matListAvatar>filter_none</mat-icon>
+    <span class="mat-subhead" i18n>Drop files here or use the "Upload" button</span>
+  </div>
+</ng-template>

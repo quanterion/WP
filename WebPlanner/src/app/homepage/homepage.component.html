@@ -1,0 +1,81 @@
+<mat-toolbar *ngIf="auth.publicMode" class="pad-none">
+  <nav md-stretch-tabs mat-tab-nav-bar class="pull-bottom-xl pull-top-md text-upper" flex>
+    <a matTabLink
+      [routerLink]="'/home'"
+      routerLinkActive [routerLinkActiveOptions]="{exact: true}"
+      #rla="routerLinkActive"
+      [active]="rla.isActive">
+      <span hide-xs i18n>Home</span>
+      <span hide-gt-xs><mat-icon>home</mat-icon></span>
+    </a>
+    <a matTabLink
+      [routerLink]="'features'"
+      routerLinkActive #rlaf="routerLinkActive"
+      [active]="rlaf.isActive">
+      <span hide-xs i18n>Features</span>
+      <span hide-gt-xs><mat-icon>laptop_mac</mat-icon></span>
+    </a>
+    <a matTabLink
+      [routerLink]="'credits'"
+      routerLinkActive #rlac="routerLinkActive"
+      [active]="rlac.isActive">
+      <span hide-xs i18n>Credits</span>
+      <span hide-gt-xs><mat-icon>assignment</mat-icon></span>
+    </a>
+    <a matTabLink
+      [routerLink]="'changelog'"
+      routerLinkActive #rlacl="routerLinkActive"
+      [active]="rlacl.isActive">
+      <span hide-xs i18n>Changelog</span>
+      <span hide-gt-xs><mat-icon>history</mat-icon></span>
+    </a>
+  </nav>
+</mat-toolbar>
+
+<ng-container *ngIf="!this.auth.publicMode">
+  <app-login *wpWait="showLogin$" class="push-xxl"></app-login>
+</ng-container>
+
+<div [class.hidden]="!auth.publicMode">
+  <router-outlet></router-outlet>
+</div>
+
+<section *ngIf="auth.publicMode" class="bgc-blue-grey-800 tc-blue-grey-100">
+      <div fxLayout.gt-xs="row" fxLayoutAlign.gt-xs="center center">
+        <div fxLayout.gt-sm="row" fxFlex.gt-xs="75">
+          <div fxFlex>
+            <mat-nav-list>
+              <h3 matSubheader class="text-upper tc-blue-grey-100" i18n>Media</h3>
+              <mat-list-item>
+                <a matLine class="tc-blue-grey-300" [routerLink]="'/home/articles'" i18n>Press</a>
+              </mat-list-item>
+              <mat-list-item>
+                <a matLine class="tc-blue-grey-300"
+                  href="https://drive.google.com/drive/folders/177jhd9hlE8vbDDFqAP9Dp-ocUjLKsDs_" target="_blank" i18n>Galery</a>
+              </mat-list-item>
+            </mat-nav-list>
+          </div>
+          <div flex>
+            <mat-nav-list>
+              <h3 matSubheader class="text-upper tc-blue-grey-100" i18n>Explore</h3>
+              <mat-list-item>
+                <a matLine class="tc-blue-grey-300" [routerLink]="'/projects'" i18n>Projects</a>
+              </mat-list-item>
+              <mat-list-item>
+                <a matLine class="tc-blue-grey-300" [routerLink]="'/catalog/list'" i18n>Catalogs</a>
+              </mat-list-item>
+            </mat-nav-list>
+          </div>
+          <div fxFlex.gt-xs="10">
+          </div>
+          <div fxFlex fxLayout="column" fxFlex.gt-xs="30">
+            <p class="md-body-1" i18n>&copy; Copyright 2015 - 2019 Roman Kolesnikov. All rights reserved.</p>
+            <a class="md-body-1 tc-grey-50" href="mailto:info@wigwam3d.com" target="_top">info@wigwam3d.com</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<div class="app-version-info">
+  <span i18n>Version</span>: Beta.2
+</div>

@@ -1,0 +1,28 @@
+:host {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+table {
+    flex: auto;
+    overflow-y: auto;
+}
+
+mat-toolbar {
+    flex: none;
+}
+
+tr {
+    cursor: pointer;
+}
+
+span.disabled {
+    padding: 4px;
+    background-color: gray;
+    border-radius: 4px;
+}
+
+.mat-column-select {
+    overflow: initial;
+}

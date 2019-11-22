@@ -1,0 +1,58 @@
+<h2 matDialogTitle i18n>New project</h2>
+<mat-dialog-content>
+  <mat-form-field>
+    <input matInput placeholder="Order name" i18n-placeholder [formControl]="name">
+    <mat-error *ngIf="name.errors" i18n>Enter project name</mat-error>
+  </mat-form-field>
+
+  <td-dynamic-forms [form]="orderParamsForm" [elements]="orderParamsFormElements"></td-dynamic-forms>
+
+  <mat-vertical-stepper #stepper>
+    <mat-step>
+      <ng-template matStepLabel>
+        <span i18n>Client information</span>
+      </ng-template>
+      <app-client-editor [createMode]="true"></app-client-editor>
+      <div class="push-top" fxLayout="row">
+        <button *ngIf="clientEditor && clientEditor.lastClient" mat-raised-button
+          (click)="clientEditor.useLastClient()" color="accent" i18n>LAST CLIENT</button>
+        <span fxFlex></span>
+        <button mat-raised-button [disabled]="!clientEditor.form.valid" color="primary" matStepperNext i18n>NEXT</button>
+      </div>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>
+        <div class="push-top push-bottom">
+          <span fxFlex i18n>Room parameters</span>
+          <mat-radio-group *ngIf="templates && stepper.selectedIndex" [formControl]="useTemplates">
+            <mat-radio-button [disableRipple]="true" class="push-left-xl" [value]="false" i18n>New room</mat-radio-button>
+            <mat-radio-button [disableRipple]="true" class="push-left" [value]="true" i18n>From template</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </ng-template>
+      <form *ngIf="!useTemplates.value" [formGroup]="roomForm" fxLayout="column">
+        <mat-form-field>
+          <input matInput placeholder="Length" i18n-placeholder type="number" [formControl]="length">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Width" i18n-placeholder type="number" [formControl]="width">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Height" i18n-placeholder type="number" [formControl]="height">
+        </mat-form-field>
+        <mat-form-field>
+          <input matInput placeholder="Wall thickness" i18n-placeholder type="number" [formControl]="thickness">
+        </mat-form-field>
+        <mat-progress-bar mode="indeterminate" *ngIf="creating"></mat-progress-bar>
+        <div class="push-top" fxLayout="row">
+          <span fxFlex></span>
+          <button mat-raised-button class="push-left" color="accent" (click)="createProject()" [disabled]="!canCreateOrder()"
+            i18n>CREATE</button>
+        </div>
+      </form>
+      <div *ngIf="useTemplates.value" class="templates">
+        <div *ngFor="let template of templates" app-project-thumbnail [file]="template" (click)="createFromTemplate(template)"></div>
+      </div>
+    </mat-step>
+  </mat-vertical-stepper>
+</mat-dialog-content>

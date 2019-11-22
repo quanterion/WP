@@ -1,0 +1,57 @@
+<div *ngIf="file$ | async; let file; else list"fxLayout="column" class="flex-auto">
+  <mat-toolbar *ngIf="name$ | async; let name">
+    <a mat-icon-button routerLink="." [queryParams]="{ file: undefined}" queryParamsHandling="merge">
+      <mat-icon>reply</mat-icon>
+    </a>
+    <span class="flex-auto">{{name}}</span>
+    <td-file-upload #fileReplace defaultColor="accent" (select)="replaceFile($event)" [accept]="'.' + extension(name)">
+      <mat-icon>file_upload</mat-icon>
+      <ng-template td-file-input-label>
+        <mat-icon>attach_file</mat-icon><span i18n>REPLACE</span>
+      </ng-template>
+    </td-file-upload>
+  </mat-toolbar>
+  <app-code-editor *ngIf="file.text" [language]="file.language" [value]="file.text"></app-code-editor>
+  <div *ngIf="file.image" class="image">
+    <img [src]="file.image">
+  </div>
+</div>
+
+<ng-template #list>
+  <mat-toolbar>
+    <a mat-icon-button *ngIf="folder$ | async; else addFolderButton" routerLink="." [queryParams]="{ folder: undefined }">
+      <mat-icon>reply</mat-icon>
+    </a>
+    <ng-template #addFolderButton>
+      <button mat-icon-button (click)="addFolder()"
+        matTooltip="Add folder" i18n-matTooltip>
+        <mat-icon>create_new_folder</mat-icon>
+      </button>
+    </ng-template>
+    <span class="flex-auto"></span>
+    <td-file-upload #fileUpload defaultColor="accent" (select)="uploadFile($event)">
+      <mat-icon>file_upload</mat-icon>
+      <ng-template td-file-input-label>
+        <mat-icon>attach_file</mat-icon><span i18n>UPLOAD FILE</span>
+      </ng-template>
+    </td-file-upload>
+  </mat-toolbar>
+  <mat-nav-list *ngIf="assets$ | async; let assets">
+    <a *ngFor="let file of assets.folders" mat-list-item routerLink="." [queryParams]="{folder: file}">
+      <mat-icon matListIcon>folder</mat-icon>
+      <span class="flex-auto">{{file}}</span>
+      <button mat-icon-button (click)="removeFile($event, file)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </a>
+    <mat-divider *ngIf="assets.folders.length && assets.files.length"></mat-divider>
+    <a *ngFor="let file of assets.files" mat-list-item routerLink="." [queryParams]="{file: file}" queryParamsHandling="merge">
+      <mat-icon matListIcon>attachment</mat-icon>
+      <span class="flex-auto">{{file}}</span>
+      <button mat-icon-button (click)="removeFile($event, file)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </a>
+    <div i18n class="push text-center" *ngIf="!assets.folders.length && !assets.files.length">Empty folder</div>
+  </mat-nav-list>
+</ng-template>

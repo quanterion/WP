@@ -1,0 +1,14 @@
+<h1 mat-dialog-title i18n>Bulk replace</h1>
+<mat-nav-list *ngIf="allModels">
+  <ng-container *ngFor="let models of allModels">
+    <mat-list-item (click)="replace(models)">
+      <span matBadge={{models.length}} matBadgeOverlap="false">
+        <span>{{models[0].name}}</span>
+        <span *ngIf="models[0].type" class="push-left-sm">[{{models[0].type}}]</span>
+      </span>
+      <span fxFlex></span>
+      <button mat-raised-button color="primary" i18n>REPLACE</button>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+  </ng-container>
+</mat-nav-list>

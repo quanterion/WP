@@ -1,0 +1,39 @@
+@import '~@angular/material/theming';
+
+@mixin app-message-typography($config) {
+  .message-label {
+    font: {
+      family: mat-font-family($config);
+      size: mat-font-size($config, body-2);
+      weight: 600;
+    }
+    line-height: mat-line-height($config, body-2);
+  }
+  .message-sublabel {
+    font: {
+      family: mat-font-family($config);
+      size: mat-font-size($config, body-1);
+    }
+  }
+}
+
+@mixin app-message-theme($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+
+  .app-message {
+    &.mat-primary {
+      color: mat-color($primary);
+      background-color: mat-color($primary, 0.15);
+    }
+    &.mat-accent {
+      color: mat-color($accent);
+      background-color: mat-color($accent, 0.15);
+    }
+    &.mat-warn {
+      color: mat-color($warn);
+      background-color: mat-color($warn, 0.15);
+    }
+  }
+}

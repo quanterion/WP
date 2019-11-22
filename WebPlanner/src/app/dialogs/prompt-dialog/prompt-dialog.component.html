@@ -1,0 +1,29 @@
+<h1 *ngIf="title">{{title}}</h1>
+<mat-dialog-content>
+  <span class="message">{{message}}</span>
+  <form #form="ngForm" novalidate>
+    <div class="input-wrapper">
+      <mat-form-field>
+        <input matInput
+              #input
+              (focus)="handleInputFocus()"
+              (keydown.enter)="$event.preventDefault(); form.valid && accept()"
+              [(ngModel)]="value"
+              name="value"
+              required/>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button
+          #closeBtn
+          (keydown.arrowright)="acceptBtn.focus()"
+          (click)="cancel()" i18n>CANCEL</button>
+  <button mat-button
+          color="accent"
+          #acceptBtn
+          (keydown.arrowleft)="closeBtn.focus()"
+          [disabled]="!form.valid"
+          (click)="accept()" i18n>OK</button>
+</mat-dialog-actions>

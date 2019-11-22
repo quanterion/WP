@@ -1,0 +1,66 @@
+<div class="zoom-bar">
+  <button mat-icon-button (click)="zoomToFit()" matTooltip="Zoom out" i18n-matTooltip>
+    <mat-icon>zoom_out_map</mat-icon>
+  </button>
+  <button mat-button (click)="zoomIn()">+</button>
+  <button mat-button (click)="zoomOut()">-</button>
+</div>
+<mat-button-toggle-group #navGroup="matButtonToggleGroup" [value]="navMode" (change)="applyNavMode(navGroup.value)">
+  <mat-button-toggle value="Ortho" i18n-matTooltip matTooltip="Orthogonal view" matTooltipPosition="above">
+    2D
+  </mat-button-toggle>
+  <mat-button-toggle value="Orbit" i18n-matTooltip matTooltip="Orbit camera mode" matTooltipPosition="above">
+    3D
+  </mat-button-toggle>
+  <mat-button-toggle value="Walk" i18n-matTooltip matTooltip="First person view" matTooltipPosition="above">
+    <mat-icon>directions_walk</mat-icon>
+  </mat-button-toggle>
+  <button mat-icon-button [mat-menu-trigger-for]="navMenu">
+    <mat-icon>settings_notifications</mat-icon>
+  </button>
+</mat-button-toggle-group>
+
+<mat-menu xPosition="before" overlapTrigger="false" #navMenu="matMenu">
+  <button mat-menu-item (click)="shadeMode = RenderMode.Shaded">
+    <mat-icon [class.hidden]="shadeMode !== RenderMode.Shaded">radio_button_checked</mat-icon>
+    <span i18n>Shaded</span>
+  </button>
+  <button mat-menu-item (click)="shadeMode = RenderMode.ShadedWithEdges">
+    <mat-icon [class.hidden]="shadeMode !== RenderMode.ShadedWithEdges">radio_button_checked</mat-icon>
+    <span i18n>Shaded with edges</span>
+  </button>
+  <button mat-menu-item (click)="shadeMode = RenderMode.HiddenEdgesVisible">
+    <mat-icon [class.hidden]="shadeMode !== RenderMode.HiddenEdgesVisible">radio_button_checked</mat-icon>
+    <span i18n>Wireframe</span>
+  </button>
+  <hr>
+  <button mat-menu-item (click)="toggleWallsVisibility()">
+    <mat-icon [class.hidden]="!ds.render.dynamicVisibility">check</mat-icon>
+    <span i18n>Walls visiblity</span>
+  </button>
+  <button mat-menu-item (click)="toggleSsao()" [class.noeffects]="!webgl2"
+      matTooltip="Browser or videocard do not support WebGL2" i18n-matTooltip [matTooltipDisabled]="webgl2" matTooltipPosition="left">
+    <mat-icon [class.hidden]="!this.ds.render.effectsEnabled">check</mat-icon>
+    <span i18n>Effects</span>
+    <span i18n *ngIf="!webgl2">[No WebGL2]</span>
+  </button>
+  <button mat-menu-item [mat-menu-trigger-for]="backgroundMenu">
+    <mat-icon>insert_photo</mat-icon>
+    <span i18n>Background</span>
+  </button>
+</mat-menu>
+
+<mat-menu xPosition="before" overlapTrigger="false" #backgroundMenu="matMenu">
+  <button mat-menu-item (click)="background = '#sunsky'">
+    <mat-icon [class.hidden]="background !== '#sunsky'">radio_button_checked</mat-icon>
+    <span i18n>Sky</span>
+  </button>
+  <button mat-menu-item (click)="background = 'country'">
+    <mat-icon [class.hidden]="background !== 'country'">radio_button_checked</mat-icon>
+    <span i18n>Texture</span>
+  </button>
+  <button mat-menu-item (click)="background = undefined">
+    <mat-icon [class.hidden]="background">radio_button_checked</mat-icon>
+    <span i18n>None</span>
+  </button>
+</mat-menu>

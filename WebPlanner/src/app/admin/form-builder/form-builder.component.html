@@ -1,0 +1,120 @@
+<mat-menu #createMenu>
+  <button mat-menu-item (click)="addElement('input')" i18n>Text string</button>
+  <button mat-menu-item (click)="addElement('number')" i18n>Number</button>
+  <button mat-menu-item (click)="addElement('date')" i18n>Date</button>
+  <button mat-menu-item (click)="addElement('checkbox')" i18n>Checkbox</button>
+  <button mat-menu-item (click)="addElement('slide-toggle')" i18n>Slide toggle</button>
+</mat-menu>
+
+<mat-toolbar>
+  <span *ngIf="label" class="push-right">{{label}}</span>
+  <button mat-icon-button [matMenuTriggerFor]="createMenu">
+    <mat-icon>note_add</mat-icon>
+    <span i18n>ADD</span>
+  </button>
+</mat-toolbar>
+
+<mat-expansion-panel *ngFor="let model of elements || []; index as index" expanded="true">
+  <mat-expansion-panel-header>
+    <mat-panel-title>{{model.label}}</mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <div class="pad" fxLayout="column">
+    <div fxLayout="row">
+      <mat-form-field class="pad-right-xs" fxFlex>
+        <input matInput
+              placeholder="Variable name" i18n-placeholder
+              [(ngModel)]="model.name"
+              name="name">
+      </mat-form-field>
+      <mat-slide-toggle *ngIf="isBool(model.type); else defaultInput" [(ngModel)]="model.default" i18n>Default</mat-slide-toggle>
+      <ng-template #defaultInput>
+        <mat-form-field *ngIf="!isMinMaxSupported(model.type)" class="pad-right-xs" fxFlex>
+          <input matInput
+                placeholder="Default" i18n-placeholder
+                [(ngModel)]="model.default"
+                name="default">
+        </mat-form-field>
+      </ng-template>
+      <mat-form-field *ngIf="!isDate(model.type) && isMinMaxSupported(model.type)" class="pad-right-xs" fxFlex>
+        <input matInput type="number" placeholder="Default" [(ngModel)]="model.default" name="default">
+      </mat-form-field>
+      <mat-form-field *ngIf="isDate(model.type) && isMinMaxSupported(model.type)" class="pad-right-xs" fxFlex>
+        <input matInput
+              [matDatepicker]="defaultDatepicker"
+              placeholder="Default" i18n-placeholder
+              [(ngModel)]="model.default"
+              name="default">
+        <mat-datepicker-toggle matSuffix [for]="defaultDatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #defaultDatepicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+    <div fxLayout="row">
+      <mat-form-field class="pad-right-xs" fxFlex>
+        <input matInput
+              placeholder="Label" i18n-placeholder
+              [(ngModel)]="model.label"
+              name="label">
+      </mat-form-field>
+      <mat-form-field fxFlex="30">
+        <input matInput
+              type="number"
+              min="0"
+              max="100"
+              placeholder="Flex (width in %)" i18n-placeholder
+              [(ngModel)]="model.flex"
+              name="flex">
+      </mat-form-field>
+    </div>
+    <div *ngIf="isMinMaxSupported(model.type)" fxLayout="row">
+      <mat-form-field *ngIf="!isDate(model.type)" class="pad-right-xs" fxFlex>
+        <input matInput type="number" placeholder="Min" [(ngModel)]="model.min" name="min">
+      </mat-form-field>
+      <mat-form-field *ngIf="isDate(model.type)" class="pad-right-xs" fxFlex>
+        <input matInput
+              [matDatepicker]="minDatepicker"
+              placeholder="Min" i18n-placeholder
+              [(ngModel)]="model.min"
+              name="min">
+        <mat-datepicker-toggle matSuffix [for]="minDatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #minDatepicker></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field *ngIf="!isDate(model.type)" fxFlex="50">
+        <input matInput type="number" placeholder="Max" [(ngModel)]="model.max" name="max">
+      </mat-form-field>
+      <mat-form-field *ngIf="isDate(model.type)" fxFlex="50">
+        <input matInput
+              [matDatepicker]="maxDatepicker"
+              placeholder="Max" i18n-placeholder
+              [(ngModel)]="model.max"
+              name="max">
+        <mat-datepicker-toggle matSuffix [for]="maxDatepicker"></mat-datepicker-toggle>
+        <mat-datepicker #maxDatepicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+    <div *ngIf="isMinMaxLengthSupported(model.type)" fxLayout="row">
+      <mat-form-field class="pad-right-xs" fxFlex>
+        <input matInput
+              type="text"
+              placeholder="Min length" i18n-placeholder
+              [(ngModel)]="model.minLength"
+              name="min">
+      </mat-form-field>
+      <mat-form-field fxFlex="50">
+        <input matInput
+              type="text"
+              placeholder="Max length" i18n-placeholder
+              [(ngModel)]="model.maxLength"
+              name="max">
+      </mat-form-field>
+    </div>
+    <div fxLayout="row">
+      <mat-slide-toggle [(ngModel)]="model.required" name="required" i18n>Required</mat-slide-toggle>
+      <mat-slide-toggle [(ngModel)]="model.disabled" name="disabled" i18n>Disabled</mat-slide-toggle>
+      <span fxFlex></span>
+      <button mat-icon-button matTooltip="Delete element" i18n-matTooltip (click)="deleteElement(index)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</mat-expansion-panel>

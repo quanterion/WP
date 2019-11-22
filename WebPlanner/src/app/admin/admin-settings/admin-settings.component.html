@@ -1,0 +1,266 @@
+<mat-accordion displayMode="flat">
+  <mat-expansion-panel expanded="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Application</mat-panel-title>
+      <mat-panel-description i18n>Common application settings</mat-panel-description>
+    </mat-expansion-panel-header>
+    <form *wpWait="app$ as app" (ngSubmit)="saveConfig(appForm, app)" #appForm="ngForm">
+      <mat-form-field>
+        <input matInput [(ngModel)]="app.applicationName" name="applicationName" placeholder="Application name" i18n-placeholder>
+      </mat-form-field>
+
+      <div>
+        <mat-slide-toggle [(ngModel)]="app.registrationEnabled" name="registrationEnabled" i18n>Enable user registration</mat-slide-toggle>
+      </div>
+      <button mat-raised-button *ngIf="appForm.dirty" type="submit" color="accent" class="push" i18n>APPLY</button>
+    </form>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Mail</mat-panel-title>
+      <mat-panel-description i18n>Mail server settings</mat-panel-description>
+    </mat-expansion-panel-header>
+    <form *ngIf="mail$ | async as mail" (ngSubmit)="saveMail(mailForm)" #mailForm="ngForm">
+      <mat-form-field>
+        <input matInput [(ngModel)]="mail.host" name="host" placeholder="Mail server" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="mail.port" name="port" type="number" placeholder="Port" i18n-placeholder>
+      </mat-form-field>
+      <div>
+        <mat-slide-toggle [(ngModel)]="mail.ssl" name="ssl" i18n>Enable ssl</mat-slide-toggle>
+        <mat-slide-toggle [(ngModel)]="mail.disableSslCheck" name="disableSslCheck" i18n>Disable ssl certificate verification</mat-slide-toggle>
+      </div>
+
+      <mat-form-field>
+        <input matInput [(ngModel)]="mail.userName" name="userName" placeholder="Username" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="mail.password" name="password" placeholder="Password" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="mail.senderEmail" name="senderEmail" placeholder="Sender email" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="mail.adminName" name="adminName" placeholder="Admin name" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="mail.adminEmail" name="adminEmail" placeholder="Admin email" i18n-placeholder>
+      </mat-form-field>
+
+      <button mat-raised-button (click)="testMail(mailForm)" color="primary" class="push" type="button" i18n>VERIFY CONFIGURATION</button>
+      <app-message *ngIf="mailTest$ | async as result" [color]="result.ok ? 'primary' : 'warn'">
+        <mat-progress-bar *ngIf="result.error === '*'" mode="indeterminate"></mat-progress-bar>
+        <ng-container *ngIf="result.error !== '*'">
+          <span *ngIf="result.ok" i18n>Test email sent. Check it in your admin box {{mailForm.value.adminEmail}}</span>
+          <span *ngIf="!result.ok" i18n>Failed to send email to {{mailForm.value.adminEmail}}: {{result.error}}</span>
+        </ng-container>
+      </app-message>
+      <button mat-raised-button *ngIf="mailForm.dirty" type="submit" color="accent" class="push" i18n>APPLY</button>
+    </form>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Sms</mat-panel-title>
+      <mat-panel-description i18n>Sms server settings</mat-panel-description>
+    </mat-expansion-panel-header>
+    <form *wpWait="smsServer$  as smsServer" (ngSubmit)="saveConfig(smsForm, smsServer)" #smsForm="ngForm">
+      <mat-form-field>
+        <input matInput [(ngModel)]="smsServer.server" name="server" placeholder="Sms server" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field cdkTextareaAutosize>
+        <textarea matInput [(ngModel)]="smsServer.bodyTemplate" name="bodyTemplate" placeholder="HTTP request body"></textarea>
+      </mat-form-field>
+
+      <div class="flex-row" ngModelGroup="phoneRewriteRules">
+        <mat-form-field class="flex-auto push-right">
+          <input matInput [(ngModel)]="smsServer.phoneRewriteRules.pattern" name="pattern" placeholder="Phone rewrite pattern (Regex)" i18n-placeholder>
+        </mat-form-field>
+        <mat-form-field class="flex-auto">
+          <input matInput [(ngModel)]="smsServer.phoneRewriteRules.replacement" name="replacement" placeholder="Phone rewrite replacement" i18n-placeholder>
+        </mat-form-field>
+      </div>
+
+      <hr>
+      <div *ngIf="smsServer.server">
+        <mat-form-field>
+          <input matInput #testPhone name="test-phone" placeholder="Phone" i18n-placeholder>
+        </mat-form-field>
+
+        <button mat-raised-button type="button" color="primary" [disabled]="!testPhone.value"
+          (click)="testSms(testPhone)">TEST</button>
+        <div class="push">
+          <app-message *wpWait="smsTest$ as result" [color]="result.ok ? 'primary' : 'warn'">
+            <span *ngIf="result.ok" i18n>Test sms successfully sent!</span>
+            <span *ngIf="!result.ok" i18n>Failed to send sms</span>
+          </app-message>
+        </div>
+      </div>
+
+      <button mat-raised-button *ngIf="smsForm.dirty" type="submit" color="accent" class="push" i18n>APPLY</button>
+    </form>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Archiving</mat-panel-title>
+      <mat-panel-description i18n>Project archive settings</mat-panel-description>
+    </mat-expansion-panel-header>
+    <form *wpWait="archiving$  as archiving" (ngSubmit)="saveConfig(archivingForm, archiving)" #archivingForm="ngForm">
+      <mat-form-field>
+        <input matInput [(ngModel)]="archiving.destination" name="destination" placeholder="Path to archive disk" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="archiving.archiveAfter" name="archiveAfter" type="number" placeholder="Archive projects after" i18n-placeholder>
+        <span matSuffix i18n>days</span>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="archiving.removeAfter" name="removeAfter" type="number" placeholder="Remove projects after" i18n-placeholder>
+        <span matSuffix i18n>days</span>
+      </mat-form-field>
+
+      <div class="flex-row">
+        <button mat-raised-button *ngIf="archivingForm.dirty" type="submit" color="accent" class="push" i18n>APPLY</button>
+        <span class="flex-auto"></span>
+        <app-job-progress-bar *ngIf="archivingProgress$" [value]="archivingProgress$ | async" #bar>
+          <app-message job-success color="primary" icon="info" i18n>Archiving finished</app-message>
+        </app-job-progress-bar>
+        <button mat-raised-button (click)="runArchiving(archivingForm)" type="button" color="primary"
+          *ngIf="!archivingProgress$ && archiving.destination" i18n>RUN ARCHIVING</button>
+      </div>
+    </form>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Planner</mat-panel-title>
+      <mat-panel-description>
+        <a routerLink="/admin/projecttemplates"i18n>Project templates</a>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <form *ngIf="planner$ | async as planner" (ngSubmit)="savePlanner(plannerForm, planner)" #plannerForm="ngForm">
+      <div>
+        <mat-slide-toggle [(ngModel)]="planner.sounds" name="sounds" i18n>Enable sounds</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="planner.showFloors" name="showFloors" i18n>Multi-storey editor</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="planner.showPrices" name="showPrices" i18n>Display prices in model browser</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="planner.allowExport" name="allowExport" i18n>Allow export of projects to b3d</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="planner.doorAnimation" name="doorAnimation" i18n>Open doors and windows after insert</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="planner.replaceByType" name="replaceByType" i18n>Replace models by type</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="planner.navigatorCube" name="navigatorCube" i18n>3D Cube navigator</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="planner.updateChangedModels" name="updateChangedModels" i18n>Ask to update changed models</mat-slide-toggle>
+      </div>
+      <button mat-raised-button *ngIf="plannerForm.dirty" type="submit" color="accent" class="push" i18n>APPLY</button>
+    </form>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel *ngIf="auth.angstrem">
+    <mat-expansion-panel-header>
+      <mat-panel-title>Ангстрем - Мебель</mat-panel-title>
+    </mat-expansion-panel-header>
+    <form *ngIf="angstrem$ | async as angstrem" (ngSubmit)="saveAngstrem(angstremForm)" #angstremForm="ngForm" fxLayout="row"
+      fxLayoutAlign="start center">
+      <mat-form-field>
+        <input matInput [disabled]="angstremUpdating" pattern="ftp:\/\/.*\.xml" [(ngModel)]="angstrem.priceFtp" name="priceFtp" placeholder="Путь к файлу с учетными записями на FTP сервере">
+        <mat-error *ngIf="angstremForm.invalid">Путь должен начинаться с
+          <b>ftp://</b> и заканчиваться на
+          <b>.xml</b>"</mat-error>
+      </mat-form-field>
+      <button mat-raised-button *ngIf="angstremForm.dirty" type="submit" color="accent" class="push">ПРИМЕНИТЬ</button>
+      <span fxFlex></span>
+      <span *ngIf="angstremUpdating">Идёт обновление прайс-листов...</span>
+      <button mat-raised-button *ngIf="angstrem.priceFtp && !angstremUpdating && !angstremForm.dirty" color="primary" class="push"
+        (click)="angstremUpdate()">ОБНОВИТЬ ДАННЫЕ ПО FTP</button>
+    </form>
+    <mat-progress-bar *ngIf="angstremUpdating" mode="indeterminate"></mat-progress-bar>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Materials</mat-panel-title>
+      <mat-panel-description i18n>Default project materials</mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <app-admin-materials></app-admin-materials>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Embedded mode</mat-panel-title>
+    </mat-expansion-panel-header>
+    <form *ngIf="embedded$ | async as embedded" (ngSubmit)="saveEmbedded(embeddedForm)" #embeddedForm="ngForm">
+      <div>
+        <mat-slide-toggle [(ngModel)]="embedded.enabled" name="enabled" i18n>Enable</mat-slide-toggle>
+      </div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="embedded.userName" name="userName" placeholder="User name" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="embedded.configUrl" name="configUrl" placeholder="Initialization url (POST)" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="embedded.priceUrl" name="priceUrl" placeholder="Price request url (GET)" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="embedded.orderUrl" name="orderUrl" placeholder="Order request url (POST)" i18n-placeholder>
+      </mat-form-field>
+
+      <button mat-raised-button *ngIf="embeddedForm.dirty" type="submit" color="accent" class="push" i18n>APPLY</button>
+    </form>
+  </mat-expansion-panel>
+
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>Order management</mat-panel-title>
+    </mat-expansion-panel-header>
+    <form *ngIf="order$ | async as order" #orderForm="ngForm">
+      <div>
+        <mat-slide-toggle [(ngModel)]="order.enabled" name="enabled" i18n>Enable</mat-slide-toggle>
+      </div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="order.projectName" name="projectName" placeholder="Generate project name" i18n-placeholder>
+      </mat-form-field>
+      <div>
+        <mat-slide-toggle [(ngModel)]="order.order" name="order" i18n>Enable order button</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="order.lock" name="lock" i18n>Lock projects</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="order.verifyPhone" name="verifyPhone" i18n>Enable phone verification</mat-slide-toggle>
+      </div>
+      <div>
+        <mat-slide-toggle [(ngModel)]="order.requirePhone" name="requirePhone" i18n>Require phone</mat-slide-toggle>
+      </div>
+      <mat-form-field>
+        <input matInput [(ngModel)]="order.email" name="email" placeholder="Send email" i18n-placeholder>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [(ngModel)]="order.post" name="post" placeholder="Send HTTP POST request" i18n-placeholder>
+      </mat-form-field>
+      <app-form-builder label="Custom order params" i18n-label [elements]="order.customParams"></app-form-builder>
+      <app-form-builder label="Custom client params" i18n-label [elements]="order.customClientParams"></app-form-builder>
+      <button mat-raised-button (click)="saveOrder(orderForm, order)"
+         type="submit" color="accent" class="push" i18n>APPLY</button>
+    </form>
+  </mat-expansion-panel>
+</mat-accordion>
+
+<ng-template #updateSuccess>
+  <span i18n>Settings successfully updated!</span>
+</ng-template>

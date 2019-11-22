@@ -1,0 +1,276 @@
+syntax = "proto3";
+
+
+package pb;
+
+// components
+message Common {
+	string name = 1;
+	string type = 3;	
+	uint32 catalog = 4;
+	bool assembly = 5;
+}
+
+message Transform {
+	repeated double matrix = 1 [packed=true];
+	uint32 flags = 2; // box, content and exact flags
+	repeated double box = 3 [packed=true];
+	repeated double contentBox = 4 [packed=true];
+	repeated double exactBox = 5 [packed=true];	
+}
+
+// sync data, GeometryComponent
+message Geometry {
+
+	message Grid {
+		uint32 name = 1; // hash
+		uint32 catalog = 8;
+		string material = 2;
+		uint32 type = 7;
+		repeated float position = 3 [packed=true];
+		repeated float normal = 4 [packed=true];
+		repeated float texture = 5 [packed=true];
+		repeated uint32 index = 6 [packed=true];
+	}
+	
+	repeated Grid grid = 1;
+	
+	message Edge {
+	  repeated float position = 1 [packed=true];
+	}	
+	repeated Edge edge = 2;
+}
+
+message Edges {
+	message Edge {
+	  repeated float position = 1 [packed=true];
+	}	
+	repeated Edge edge = 1;
+}
+
+message Animation {
+	message Frame {
+		repeated float move = 1 [packed=true];
+		repeated float axis = 2 [packed=true]; // pos + dir
+		float angle = 3;
+		float length = 4;
+	}
+	string entity = 1;
+	repeated Frame frame = 2;
+}
+
+message CompoundAnimation {
+	repeated Animation item = 1;
+	float length = 2;
+}
+
+message Furniture {
+	int32 reference = 1;
+	repeated double box = 2 [packed=true];
+}
+
+message Content {
+    // if has is true and no data that means component has not been changed
+	bool hasCommon = 1;
+	Common common = 2;
+	bool hasTransform = 3;
+	Transform transform = 4;
+	bool hasGeometry = 5;
+	Geometry geometry = 6;
+	bool hasEdges = 7;
+	Edges edges = 8;
+	// JSON string
+	bool hasData = 9;
+	string data = 10;
+	bool hasAnim = 11;
+	// animation can animate multiple entites
+	CompoundAnimation anim = 12;
+	bool hasFurn = 13;
+	Furniture furn = 14;
+}
+
+message Entity {
+	string uid = 1;  // Unique ID number for this person.
+	Content content = 2;
+	
+	bool syncChildren = 3;
+	repeated string child = 4;
+}
+
+// bundle of entities to sync
+message Scene {
+	string rootUid = 1;	
+	repeated Entity entity = 2;
+	// temporarily makes it int32 to avoid long.js
+	int32 revision = 3;
+	string undo = 4;
+	string redo = 5;
+}
+
+message PBTest {
+	int32 count = 1;
+	string text = 2;
+}
+
+//
+// BUILDER SECTION
+//
+
+message Material {
+	string name = 1;
+	int32 catalog = 4;
+	double thickness = 2;
+	double width = 3;
+}
+
+message Vector3D {
+	double x = 1;
+	double y = 2;
+	double z = 3;
+}
+
+message Element2D {
+	
+	message Vector {
+		double x = 1;
+		double y = 2;
+	}
+
+	message Segment {
+		Vector p1 = 1;
+		Vector p2 = 2;
+	}
+
+	message Arc {
+		Vector center = 1;
+		Vector axisx = 2;
+		Vector axisy = 3;
+		double angle1 = 4;
+		double angle2 = 5;
+		double radiusa = 6;
+		double radiusb = 7;
+		bool sense = 8;
+	}
+
+	message Group {
+		repeated Element2D item = 1;
+	}
+
+
+	int32 uid = 1;
+	Group group = 100;
+	Vector point = 101;
+	Segment segment = 102;
+	Arc arc = 103;	
+}
+
+message BuilderOperationList {
+	repeated Operation operation = 1;
+}
+
+message Builder {
+
+	message Panel {
+
+		enum Side {
+			None = 0;
+			Front = 1;
+			Back = 2;
+		}
+
+		message Edge {
+			Material material = 1;
+			bool crop = 2;
+			int32 elemId = 3;
+		}
+
+		message Plastic {
+			Material material = 1;
+			Side side = 2;
+			Element2D contour = 3;
+		}
+
+		Element2D contour = 1;
+		repeated Edge edge = 2;
+		repeated Plastic plastic = 3;
+		Element2D bentPath  = 4;
+	}
+
+	message Profile {
+		Element2D path = 1;
+		Element2D profile = 2;
+	}
+
+	message Rotation {
+		Element2D profile = 1;
+	}
+
+	Material material = 1;
+	BuilderOperationList operations = 2;
+	// one of
+	Panel panel = 100;
+	Profile profile = 101;
+	Rotation rotation = 102;
+}
+
+message Operation {
+
+	message Cut {
+		Builder body = 1;
+		repeated double matrix = 2 [packed=true];
+		bool bent = 3;
+	}
+
+	message ExternalCut {
+		bool enabled = 1;
+	}
+
+	message Clip {
+		Vector3D pos = 1;
+		Vector3D normal = 2;
+	}
+
+	message Painting {
+		Material material = 1;
+		repeated uint32 face = 2;
+	}
+
+	message Hole {
+		Vector3D pos = 1;
+		Vector3D dir = 2;
+		double depth = 3;
+		double radius = 4;
+
+		enum Mode {
+			Auto = 0;
+			Through = 1;
+			Blind = 2;
+		}
+		Mode mode = 5;
+	}
+
+	fixed64 link = 1;
+	int64 linkRevision = 2;
+	
+	Cut cut = 100;
+	ExternalCut externalCut = 101;
+	Clip clip = 103;
+	Painting painting = 104;
+	Hole hole = 105;
+}
+
+message BuilderComponent {
+	Builder builder = 1;
+	BuilderOperationList externalOperations = 2;
+}
+
+message BuilderLinkComponent {
+	message Link {
+		fixed64 entity = 1;
+		fixed64 revision = 2;
+	}
+	// for solids that have cuts
+	repeated Link link = 1;
+	// for CutSolids
+	fixed64 cutLink = 2;
+}

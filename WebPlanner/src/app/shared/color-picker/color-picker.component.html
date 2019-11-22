@@ -1,0 +1,39 @@
+<!-- color picker overlay -->
+<ng-container *ngIf="overlay">
+    <span class="btn-picker" cdkOverlayOrigin #trigger="cdkOverlayOrigin"></span>
+
+    <ng-template cdkConnectedOverlay cdkConnectedOverlayHasBackdrop cdkConnectedOverlayBackdropClass="app-color-picker-backdrop" [cdkConnectedOverlayOrigin]="trigger"
+        [cdkConnectedOverlayOpen]="isOpen" (backdropClick)="backdropClick()">
+
+        <ng-template [cdkPortalOutlet]="overlayPanel"></ng-template>
+
+    </ng-template>
+</ng-container>
+
+<!-- color picker flat -->
+<ng-template *ngIf="!overlay" [cdkPortalOutlet]="overlayPanel"></ng-template>
+
+<!-- color picker component content -->
+<ng-template cdkPortal #overlayPanel="cdkPortal">
+    <div class="app-color-picker-overlay mat-elevation-z6" role="dialog" aria-label="Color picker">
+        <app-color-picker-selector [selectedColor]="tmpSelectedColor$ | async" (changeSelectedColor)="updateTmpSelectedColor($event)">
+        </app-color-picker-selector>
+
+        <app-color-picker-collection *ngIf="!hideUsedColors" [label]="usedColorLabel" [size]="usedSizeColors" [transparent]="true"
+            [hideEmpty]="hideEmpty" [colors]="usedColors$ | async" (changeColor)="updateTmpSelectedColor($event)">
+        </app-color-picker-collection>
+
+        <ng-content></ng-content>
+
+        <div *ngIf="!hideButtons" class="app-color-picker-actions">
+
+            <button mat-button role="button" aria-label="Cancel" (click)="cancelSelection()">
+                {{ btnCancel }}
+            </button>
+
+            <button mat-button role="button" aria-label="Confirm" (click)="confirmSelectedColor()">
+                {{ btnConfirm }}
+            </button>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,16 @@
+.input-wrapper {
+  // layout row
+  flex-direction: row;
+  box-sizing: border-box;
+  display: flex;
+
+  mat-form-field {
+    // flex
+    flex: 1;
+    box-sizing: border-box;
+  }
+}
+
+.message {
+  word-break: break-word;
+}

@@ -1,0 +1,31 @@
+<h1 mat-dialog-title i18n>Move selected objects</h1>
+<mat-dialog-content>
+  <form #form="ngForm" novalidate>
+    <div class="input-wrapper">
+      <mat-form-field>
+        <input matInput type="number" #xinput (focus)="handleInputFocus(xinput)" (keydown.enter)="$event.preventDefault(); form.valid && accept()"
+          [(ngModel)]="value[0]" placeholder="Left / Right" i18n-placeholder name="xvalue" />
+        <span matSuffix i18n>mm</span>
+      </mat-form-field>
+    </div>
+    <div class="input-wrapper">
+      <mat-form-field>
+        <input matInput type="number" #zinput (focus)="handleInputFocus(zinput)" (keydown.enter)="$event.preventDefault(); form.valid && accept()"
+          [(ngModel)]="value[1]" placeholder="Top / Bottom" i18n-placeholder name="zvalue" />
+        <span matSuffix i18n>mm</span>
+      </mat-form-field>
+    </div>
+    <div class="input-wrapper">
+      <mat-form-field>
+        <input matInput type="number" #yinput (focus)="handleInputFocus(yinput)" (keydown.enter)="$event.preventDefault(); form.valid && accept()"
+          [(ngModel)]="value[2]" placeholder="Forward / Backward" i18n-placeholder name="yvalue" />
+        <span matSuffix i18n>mm</span>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button #closeBtn (keydown.arrowright)="acceptBtn.focus()" (click)="cancel()" i18n>CANCEL</button>
+  <button mat-raised-button color="primary" #acceptBtn (keydown.arrowleft)="closeBtn.focus()" [disabled]="!form.valid" (click)="accept()"
+    i18n>MOVE</button>
+</mat-dialog-actions>

@@ -1,0 +1,34 @@
+:host {
+    background-color: beige;
+}
+
+@media (min-width: 600px) {
+    div.selector-form {
+        min-width: 500px;
+    }
+}
+@media (max-width: 599px) {
+    div.selector-form {
+        min-width: 250px;
+    }
+}
+
+span.caption {
+    font-size: larger;
+}
+
+.selector-form {
+    height: 100%;
+}
+
+mat-nav-list {
+    overflow-y: auto;
+}
+
+.material {
+    cursor: pointer;
+}
+
+.material:hover img {
+    border: 5px solid #56c2e5;
+}

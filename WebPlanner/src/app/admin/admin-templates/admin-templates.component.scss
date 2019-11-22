@@ -1,0 +1,18 @@
+:host {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+app-code-editor {
+    margin-top: 8px;
+    height: calc(100% - 8px);
+}
+
+div.empty {
+    margin: auto;
+}
+
+div.footer {
+    flex: initial;
+}

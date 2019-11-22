@@ -1,0 +1,22 @@
+mat-dialog-content {
+    max-height: 80vh;
+    min-height: 70vh;
+    min-width: 50vw;
+}
+
+mat-form-field {
+    min-width: 250px;
+}
+
+div.hidden {
+    visibility: hidden;
+}
+
+table {
+    overflow: auto;
+}
+
+mat-progress-bar {
+    display: block;
+    width: 100%;
+}

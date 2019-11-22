@@ -1,0 +1,11 @@
+<mat-nav-list>
+  <mat-list-item (click)="setType(0)" i18n>Web site</mat-list-item>
+  <mat-divider></mat-divider>
+  <mat-list-item (click)="setType(1)" i18n>Embedded</mat-list-item>
+</mat-nav-list>
+<mat-divider [vertical]="true"></mat-divider>
+<div>
+  <app-code-editor #editor language="css" [value]="style$ | async" (editorValueChange)="codechanged()">
+  </app-code-editor>
+  <button mat-raised-button color="primary" (click)="save(editor.value)" class="push" [disabled]="!changed" i18n>SAVE</button>
+</div>

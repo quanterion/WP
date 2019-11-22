@@ -1,0 +1,257 @@
+<mat-card *ngIf="material" [class.compact]="closable">
+  <div class="actions push-sm">
+    <button *ngIf="editable" mat-icon-button class="rename-button" (click)="renameMaterial()" matTooltip="Rename material" i18n-matTooltip>
+      <mat-icon class="md-24">create</mat-icon>
+    </button>
+    <button *ngIf="undoState" mat-icon-button (click)="revert()">
+      <mat-icon>undo</mat-icon>
+    </button>
+    <button *ngIf="customButton" mat-icon-button (click)="customButtonClick.emit()">
+      <mat-icon>{{customButton}}</mat-icon>
+    </button>
+    <button *ngIf="closable" mat-icon-button (click)="close.emit()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <mat-card-header *ngIf="showImage">
+    <mat-card-title>
+      <td-file-upload class="texture-button" accept="image/*" defaultColor="none" #tdTextureUploader activeColor="none" cancelColor="primary"
+        (select)="tdUploadTexture($event)" [disabled]="readOnly">
+        <mat-icon>file_upload</mat-icon>
+        <ng-template td-file-input-label>
+          <img matCardAvatar [src]="material | thumbnail" class="drop-target texture-avatar" matTooltip="Drag&drop or click to change texture"
+            i18n-matTooltip>
+        </ng-template>
+      </td-file-upload>
+      <ng-container *ngIf="editable">
+        <app-color-picker #colorPicker [selectedColor]="materialColor" (change)=internalColorChange.next($event)
+          hideButtons="true" hideUsedColors="true"></app-color-picker>
+        <button [appColorTriggerFor]="colorPicker"
+          mat-icon-button class="color-button" matTooltip="Select color" i18n-matTooltip>
+          <mat-icon class="md-24">color_lens</mat-icon>
+        </button>
+      </ng-container>
+      <span>{{material.name}}</span>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-accordion displayMode="flat">
+      <mat-expansion-panel *ngIf="material.bumpTexture || hasTexture" [(expanded)]="texturePanelExpanded">
+        <mat-expansion-panel-header>
+          <mat-panel-title i18n>
+            Texture options
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <table>
+          <tbody>
+            <tr>
+              <th i18n>Width</th>
+              <th fxLayout="row">
+                <mat-slider min="50" max="2000" thumbLabel [(ngModel)]="sizex" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                <mat-form-field class="num-input pad-left">
+                  <input matInput type="number" [(ngModel)]="sizex" (change)="paramChanged()" [readonly]="readOnly">
+                </mat-form-field>
+              </th>
+            </tr>
+            <tr>
+              <th i18n>Height</th>
+              <th fxLayout="row">
+                <mat-slider min="50" max="2000" thumbLabel [(ngModel)]="sizey" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                <mat-form-field class="num-input pad-left">
+                  <input matInput type="number" [(ngModel)]="sizey" (change)="paramChanged()" [readonly]="readOnly">
+                </mat-form-field>
+              </th>
+            </tr>
+            <tr>
+              <th i18n>Shift X</th>
+              <th fxLayout="row">
+                <mat-slider min="0" max="2000" thumbLabel [(ngModel)]="offsetx" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                <mat-form-field class="num-input pad-left">
+                  <input matInput type="number" [(ngModel)]="offsetx" (change)="paramChanged()" [readonly]="readOnly">
+                </mat-form-field>
+              </th>
+            </tr>
+            <tr>
+              <th i18n>Shift Y</th>
+              <th fxLayout="row">
+                <mat-slider min="0" max="2000" thumbLabel [(ngModel)]="offsety" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                <mat-form-field class="num-input pad-left">
+                  <input matInput type="number" [(ngModel)]="offsety" (change)="paramChanged()" [readonly]="readOnly">
+                </mat-form-field>
+              </th>
+            </tr>
+            <tr>
+              <th i18n>Angle</th>
+              <th fxLayout="row">
+                <mat-slider min="0" max="360" thumbLabel [(ngModel)]="angle" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                <mat-form-field class="num-input pad-left">
+                  <input matInput type="number" [(ngModel)]="angle" (change)="paramChanged()" [readonly]="readOnly">
+                </mat-form-field>
+              </th>
+            </tr>
+          </tbody>
+        </table>
+      </mat-expansion-panel>
+      <mat-expansion-panel [(expanded)]="lightingPanelExpanded">
+        <mat-expansion-panel-header>
+          <mat-panel-title i18n>
+            Lighting
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <table>
+          <tbody>
+            <tr>
+              <th i18n>Surface</th>
+              <th fxLayout="row">
+                <mat-form-field class="width100 pad-left">
+                  <mat-select [(ngModel)]="type" [disabled]="readOnly" (selectionChange)="paramChanged()">
+                    <mat-option [value]="0" i18n>Outer</mat-option>
+                    <mat-option [value]="2" i18n>Both</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </th>
+            </tr>
+            <tr>
+              <th i18n>Ambient</th>
+              <th fxLayout="row">
+                <mat-slider min="0" max="100" thumbLabel [(ngModel)]="ambient" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                <mat-form-field class="num-input pad-left">
+                  <input matInput type="number" [(ngModel)]="ambient" (change)="paramChanged()" [readonly]="readOnly">
+                </mat-form-field>
+              </th>
+            </tr>
+            <tr>
+              <th i18n>Specular</th>
+              <th fxLayout="row">
+                <mat-slider min="0" max="100" thumbLabel [(ngModel)]="specular" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                <mat-form-field class="num-input pad-left">
+                  <input matInput type="number" [(ngModel)]="specular" (change)="paramChanged()" [readonly]="readOnly">
+                </mat-form-field>
+              </th>
+            </tr>
+            <tr>
+              <th i18n>Shininess</th>
+              <th fxLayout="row">
+                <mat-slider min="0" max="100" thumbLabel [(ngModel)]="shininess" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                <mat-form-field class="num-input pad-left">
+                  <input matInput type="number" [(ngModel)]="shininess" (change)="paramChanged()" [readonly]="readOnly">
+                </mat-form-field>
+              </th>
+            </tr>
+            <tr>
+              <th i18n>Transparency</th>
+              <th fxLayout="row">
+                <mat-slider min="0" max="100" thumbLabel [(ngModel)]="transparency" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                <mat-form-field class="num-input pad-left">
+                  <input matInput type="number" [(ngModel)]="transparency" (change)="paramChanged()" [readonly]="readOnly">
+                </mat-form-field>
+              </th>
+            </tr>
+          </tbody>
+        </table>
+      </mat-expansion-panel>
+      <mat-expansion-panel [(expanded)]="effectsPanelExpanded">
+          <mat-expansion-panel-header>
+            <mat-panel-title i18n>
+              Effects
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <app-message color="primary" class="pad-sm" i18n>Extensive usage of effects may cause perfomance penalty</app-message>
+
+          <table>
+            <tbody>
+              <tr>
+                <th i18n>Reflection</th>
+                <th fxLayout="row">
+                  <mat-slider min="0" max="100" thumbLabel [(ngModel)]="reflection" (change)="paramChanged()" [disabled]="readOnly"></mat-slider>
+                  <mat-form-field class="num-input pad-left">
+                    <input matInput type="number" [(ngModel)]="reflection" (change)="paramChanged()" [readonly]="readOnly">
+                  </mat-form-field>
+                </th>
+              </tr>
+              <tr>
+                <th>
+                  <span i18n>Relief</span>
+                  <img *ngIf="material.bumpTexture" matCardAvatar [src]="material | bumpthumbnail" tdFileDrop (fileDrop)="uploadBumpMap($event, true)"
+                    class="drop-target texture-avatar">
+                  <button mat-raised-button *ngIf="material.bumpTexture" class="btn-vpush" (click)="clearBumpMap()" matTooltip="Remove relief map"
+                    i18n-matTooltip>
+                    <mat-icon class="md-24">delete</mat-icon>
+                    <span i18n>Remove</span>
+                  </button>
+                </th>
+                <th fxLayout="column" fxLayoutGap="16px" fxLayoutAlign="start start">
+                  <ng-container *ngIf="editable">
+                    <button mat-raised-button *ngIf="hasTexture" color="primary" (click)="uploadBumpMap(undefined, true)">
+                      <mat-icon class="md-24">create</mat-icon>
+                      <span i18n>Generate from current texture</span>
+                    </button>
+                    <td-file-upload #tdBumpUpload1 accept="image/*" defaultColor="accent" matTooltip="Generate relief from texture"
+                      i18n-matTooltip activeColor="primary" cancelColor="primary" (select)="uploadBumpMap($event, true)">
+                      <mat-icon>file_upload</mat-icon>
+                      <ng-template td-file-input-label>
+                        <mat-icon>attach_file</mat-icon>
+                        <span i18n>Generate from texture</span>
+                      </ng-template>
+                    </td-file-upload>
+                    <td-file-upload #tdBumpUpload2 accept="image/*" defaultColor="accent" matTooltip="Upload prepared relief map"
+                      i18n-matTooltip activeColor="primary" cancelColor="primary" (select)="uploadBumpMap($event, false)">
+                      <mat-icon>file_upload</mat-icon>
+                      <ng-template td-file-input-label>
+                        <mat-icon>attach_file</mat-icon>
+                        <span i18n>Upload relief map</span>
+                      </ng-template>
+                    </td-file-upload>
+                  </ng-container>
+                </th>
+              </tr>
+            </tbody>
+          </table>
+        </mat-expansion-panel>
+        <mat-expansion-panel [(expanded)]="pricePanelExpanded">
+          <mat-expansion-panel-header>
+            <mat-panel-title i18n>Cost</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <table>
+            <tbody>
+              <tr>
+                <th i18n>Price</th>
+                <th fxLayout="row">
+                  <mat-form-field class="width100 pad-left">
+                    <input matInput type="number" [(ngModel)]="price" (change)="paramChanged()" [readonly]="readOnly">
+                  </mat-form-field>
+                </th>
+              </tr>
+              <tr>
+                <th i18n>Unit</th>
+                <th fxLayout="row">
+                  <mat-form-field class="width100 pad-left">
+                    <mat-select [(ngModel)]="unit" [disabled]="readOnly" (selectionChange)="paramChanged()">
+                      <mat-option [value]="0" i18n>None</mat-option>
+                      <mat-option [value]="1" i18n>Pieces</mat-option>
+                      <mat-option [value]="2" i18n>Meters</mat-option>
+                      <mat-option [value]="3" i18n>Square meters</mat-option>
+                      <mat-option [value]="4" i18n>Cubic meters</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </th>
+              </tr>
+              <tr>
+                <th i18n>SKU</th>
+                <th fxLayout="row">
+                  <mat-form-field class="width100 pad-left">
+                    <input matInput [(ngModel)]="sku" (change)="paramChanged()" [readonly]="readOnly">
+                  </mat-form-field>
+                </th>
+              </tr>
+            </tbody>
+          </table>
+        </mat-expansion-panel>
+    </mat-accordion>
+  </mat-card-content>
+  <img mat-card-image *ngIf="hasTexture" [src]="material | texture" tdFileDrop (fileDrop)="uploadTexture($event)">
+</mat-card>

@@ -1,0 +1,248 @@
+<mat-toolbar class="select-none" *ngIf="!accessForbidden">
+    <a *ngIf="fileItem" [routerLink]="['../../folder/', fileItem.parentId]" mat-icon-button class="push-none">
+        <mat-icon>reply</mat-icon>
+    </a>
+    <button mat-icon-button [matMenuTriggerFor]="folderMenu" class="push-none">
+        <mat-icon>folder</mat-icon>
+    </button>
+    <span>{{fileItem?.name}}</span>
+    <button mat-icon-button (click)="showFileProperties()" matTooltip="Properties" i18n-matTooltip>
+        <mat-icon>list_alt</mat-icon>
+    </button>
+
+    <mat-menu overlapTrigger="false" #folderMenu="matMenu">
+        <ng-template matMenuContent>
+            <ng-container *ngIf="folder$ | async; let folder; else folderLoading">
+                <ng-container *ngFor="let file of folder">
+                    <a *ngIf="file.folder" [routerLink]="['../../folder/', file.id]" mat-menu-item [disabled]="file.id.toString() === modelId">
+                        <mat-icon>folder</mat-icon>
+                        <span>{{file.name}}</span>
+                    </a>
+                    <a *ngIf="!file.folder" [routerLink]="['../', file.id]" mat-menu-item [disabled]="file.id.toString() === modelId">
+                        <mat-icon>open_in_browser</mat-icon>
+                        <span>{{file.name}}</span>
+                    </a>
+                </ng-container>
+            </ng-container>
+
+            <ng-template #folderLoading>
+                <button mat-menu-item>
+                    <mat-progress-bar mode="indeterminate" class="push"></mat-progress-bar>
+                </button>
+            </ng-template>
+        </ng-template>
+    </mat-menu>
+
+
+    <button mat-icon-button (click)="undo()" *ngIf="editable" [disabled]="!ds.undoName"
+        matTooltip="Undo" i18n-matTooltip [@undoAnimation]="undoRunCount">
+        <mat-icon>undo</mat-icon>
+    </button>
+    <button mat-icon-button (click)="redo()" *ngIf="editable" [disabled]="!ds.redoName"
+        matTooltip="Redo" i18n-matTooltip [@redoAnimation]="redoRunCount">
+        <mat-icon>redo</mat-icon>
+    </button>
+    <button mat-icon-button (click)="ds.removeSelection()" *ngIf="editable" [disabled]="!hasSelection"
+        matTooltip="Remove selected" i18n-matTooltip>
+        <mat-icon>delete_forever</mat-icon>
+    </button>
+
+    <button mat-icon-button [matMenuTriggerFor]="layersMenu" matTooltip="Layers" i18n-matTooltip>
+        <mat-icon>layers</mat-icon>
+    </button>
+    <mat-menu overlapTrigger="false" #layersMenu="matMenu">
+        <button mat-menu-item *ngFor="let layer of ds.layers" (click)="layer.visible = !layer.visible">
+            <mat-icon>{{layer.visible ? 'visibility_on' : 'visibility_off'}}</mat-icon>
+            <span>{{layer.name}}</span>
+        </button>
+        <span *ngIf="!ds.layers.length" class="nolayers push" i18n>No layers in model</span>
+    </mat-menu>
+
+    <button mat-icon-button [disabled]="!hasAnimations" (click)="animate()" matTooltip="Animate" i18n-matTooltip>
+        <mat-icon>play_arrow</mat-icon>
+    </button>
+
+    <mat-menu #modelerMenu="matMenu" overlapTrigger="false">
+        <button mat-menu-item (click)="uploadNewModel()">
+            <mat-icon>file_upload</mat-icon>
+            <span i18n>Replace model</span>
+        </button>
+        <button mat-menu-item [matMenuTriggerFor]="exportMenu">
+            <mat-icon>file_download</mat-icon>
+            <span i18n>Download model</span>
+        </button>
+        <button mat-menu-item (click)="rebuild()">
+            <mat-icon>build</mat-icon>
+            <span i18n>Rebuild</span>
+        </button>
+        <button mat-menu-item (click)="compress()">
+            <mat-icon>archive</mat-icon>
+            <span i18n>Compress</span>
+        </button>
+        <button mat-menu-item (click)="rotateModel()">
+            <mat-icon>3d_rotation</mat-icon>
+            <span i18n>Rotate model...</span>
+        </button>
+    </mat-menu>
+
+    <mat-menu #exportMenu="matMenu">
+        <ng-template matMenuContent>
+            <button *ngIf="editable" mat-menu-item (click)="downloadFile()">WebPlanner</button>
+            <button mat-menu-item (click)="downloadFile('b3d')">Базис-Мебельщик</button>
+            <button mat-menu-item (click)="downloadFile('c3d')">KOMPAS 3D</button>
+            <button mat-menu-item (click)="downloadFile('stp')">STEP (MCAD)</button>
+            <button mat-menu-item (click)="downloadFile('3ds')">AUTODESK (3DS)</button>
+            <button mat-menu-item (click)="downloadFile('dae')">COLLADA (DAE)</button>
+            <button mat-menu-item (click)="downloadFile('glb')">GLTF (GLB)</button>
+            <button mat-menu-item (click)="downloadFile('fbx')">FBX</button>
+        </ng-template>
+    </mat-menu>
+
+    <button mat-icon-button [mat-menu-trigger-for]="modelerMenu" *ngIf="editable">
+        <mat-icon>more_vert</mat-icon>
+    </button>
+    <td-file-input (select)="replaceModel($event)" [style.display]="'none'" [accept]="modelExtensionsFilter">
+    </td-file-input>
+
+    <button *ngIf="!editable && auth.admin" mat-button (click)="startEditing()">
+        <mat-icon>edit</mat-icon>
+        <span i18n>EDIT</span>
+    </button>
+
+    <span fxFlex></span>
+    <button mat-button *ngIf="estimate.models.length" [matMenuTriggerFor]="estimateMenu" class="pad" fxHide.lt-sm>
+        <mat-icon>shopping_cart</mat-icon>
+        <span>{{estimate.price}} &#8381;</span>
+    </button>
+
+    <mat-menu overlapTrigger="false" #estimateMenu="matMenu" class="wide-menu">
+        <ng-template matMenuContent>
+            <ng-container *ngIf="estimate.models.length">
+                <button *ngFor="let elem of estimate.models" mat-menu-item (click)="selectPriceElement(elem)"
+                        [disabled]="elem.modelId === modelIdValue()">
+                    <mat-icon>select_all</mat-icon>
+                    <span>{{elem.name}}</span>
+                    <span class="price">{{elem.modelId === modelIdValue() ? elem.price : elem.cost}}</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button *ngFor="let elem of estimate.models[0].elements" mat-menu-item (click)=selectPriceElement(elem)>
+                    <mat-icon>select_all</mat-icon>
+                    <span [class.disabled]="!elem.enabled">{{elem.name}}</span>
+                    <span class="price">{{elem.cost}}</span>
+                </button>
+                <button *ngIf="!estimate.models[0].elements.length" mat-menu-item disabled i18n>
+                    No price elements in model
+                </button>
+            </ng-container>
+            <mat-divider></mat-divider>
+            <button mat-menu-item [matMenuTriggerFor]="priceListMenu">
+                <mat-icon>reorder</mat-icon>
+                <span i18n>Pricelist</span>
+            </button>
+        </ng-template>
+    </mat-menu>
+
+    <mat-menu #priceListMenu="matMenu">
+        <ng-template matMenuContent>
+            <ng-container *ngIf="catalogView.priceLists | async; let list; else noPrices">
+                <button *ngFor="let price of list" mat-menu-item
+                        (click)="catalogView.activatePriceList(price)">
+                    <mat-icon>{{price.id !== catalogView.activePriceListId ? 'star_border' : 'stars'}}</mat-icon>
+                    <span>{{price.name}}</span>
+                </button>
+            </ng-container>
+
+            <ng-template #noPrices>
+                <button mat-menu-item disabled i18n>No pricelists</button>
+            </ng-template>
+        </ng-template>
+    </mat-menu>
+
+    <span class="overflow-hidden">
+        <button mat-icon-button (click)="viewAll()">
+            <mat-icon>zoom_out_map</mat-icon>
+        </button>
+
+        <button mat-icon-button [mat-menu-trigger-for]="cameraMenu">
+            <mat-icon>videocam</mat-icon>
+        </button>
+        <mat-menu xPosition="before" #cameraMenu="matMenu">
+            <button mat-menu-item (click)="orbitCamera()">Orbit</button>
+            <button mat-menu-item (click)="walkCamera()">Walk</button>
+            <button mat-menu-item (click)="orthoCamera()">Plan</button>
+        </mat-menu>
+
+        <button mat-icon-button [mat-menu-trigger-for]="shadeMenu">
+            <mat-icon>settings_notifications</mat-icon>
+        </button>
+        <mat-menu #shadeMenu="matMenu">
+            <button mat-menu-item (click)="shadeMode('Shaded')">Shaded</button>
+            <button mat-menu-item (click)="shadeMode('ShadedWithEdges')">Shaded with edges</button>
+            <button mat-menu-item (click)="shadeMode('HiddenEdgesVisible')">Wireframe</button>
+            <hr>
+            <button mat-menu-item (click)="displayModelStatistics()" i18n>Statistics</button>
+        </mat-menu>
+    </span>
+</mat-toolbar>
+<div fxLayout="row" class="container">
+    <div fxFlex fxLayout="column">
+        <mat-card *ngIf="editedProperty" class="property-card"
+            [@propertyPanelAnimation]="editedProperty"
+            (@propertyPanelAnimation.done)="catalogPropertyAnimationDone()">
+            <mat-card-content>
+                <app-catalog-property [property]="editedProperty"
+                    [sizeInfo]="sizeInfo" [parametricList]="parametricList"
+                    [sourceMaterials]="modelMaterials" [closable]="true"
+                    (editMaterial)="selectMaterial($event)"
+                    (save)="addOrSaveProperty($event)"></app-catalog-property>
+            </mat-card-content>
+        </mat-card>
+        <div fxFlex class="display">
+            <canvas
+                id="canvas3d"
+                class="select-none"
+                (contextmenu)="false"
+                (mouseup)="canvasMouseup($event)"
+                (dblclick)="canvasDoubleClick($event)"
+                (drop)="dropTexture($event)"
+                (dragover)="onDragOver($event)">
+            </canvas>
+            <mat-progress-spinner *ngIf="loadingIndicator$ | async" mode="indeterminate"></mat-progress-spinner>
+            <app-modeler-tree class="side-tree" [ds]="ds"></app-modeler-tree>
+            <input id="canvas3d-input" style="position: absolute; z-index: 1; left: 0px; top: 0px; width:100px; visibility: hidden; font-size: 14px" width="100" />
+            <app-message *ngIf="accessForbidden" color="primary" class="pad-sm"
+                label="Error" i18n-label i18n>Access forbidden</app-message>
+        </div>
+    </div>
+    <mat-card class="side" *ngIf="!accessForbidden">
+        <mat-tab-group class="property-pane">
+            <mat-tab label="Properties" i18n-label>
+                <app-modeler-properties class="select-none" [ds]="ds" [file]="fileItem" [editable]="editable"
+                    (fileChanged)="fileChanged($event)"
+                    (openPropertyEditor)="activatePropertyEditor($event)"></app-modeler-properties>
+            </mat-tab>
+            <mat-tab label="Materials" i18n-label>
+                <mat-nav-list class="material-list">
+                    <mat-list-item *ngFor="let m of usedMaterials" (click)=selectMaterial(m)>
+                        <img mat-list-avatar class="drop-target"
+                            [src]="m | thumbnail" tdFileDrop (fileDrop)="uploadTexture(m, $event)">
+                        <span fxFlex class="item-name">{{m.name}}</span>
+                        <button *ngIf="editable" mat-icon-button matTooltip="Add material property" (click)="addMaterialProperty(m, $event)">
+                            <mat-icon>library_add</mat-icon>
+                        </button>
+                    </mat-list-item>
+                </mat-nav-list>
+            </mat-tab>
+        </mat-tab-group>
+        <div *ngIf="selectedMaterial" class="selected-material" [@materialPanelAnimation]="selectedMaterialState">
+            <app-material [material]="selectedMaterial" (change)="materialParamChanged($event)"
+                [customButton]="editable && 'library_add'" (customButtonClick)="addMaterialProperty(selectedMaterial)"
+                [readOnly]="!editable" [closable]="true" (close)="closeMaterialEditor()" [modelId]="modelIdValue()">
+            </app-material>
+        </div>
+    </mat-card>
+</div>
+
+<ng-template #compressResultTemplate>
+    <span i18n>Model compressed from {{compressResult.oldSize | bytes}} to {{compressResult.newSize | bytes}}</span>
+</ng-template>

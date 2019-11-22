@@ -1,0 +1,69 @@
+@import '~@angular/material/theming';
+
+:host {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+mat-toolbar {
+  flex: none;
+}
+
+div.projects-view {
+  flex: auto;
+  overflow: auto;
+}
+
+.app-action {
+  display: inline-block;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+mat-row {
+  a {
+    display: flex;
+    text-decoration: none;
+    flex-direction: row;
+    align-items: center;
+  }
+  img {
+    height: 128px;
+    margin: 2px;
+  }
+}
+
+mat-row:hover {
+  @include mat-elevation(1);
+}
+
+mat-cell.name {
+  cursor: pointer;
+
+  img {
+    vertical-align: middle;
+  }
+}
+
+div.message {
+  margin: 32px;
+  text-align: center;
+}
+
+mat-form-field.search {
+  width: 150px;
+}
+
+::ng-deep mat-form-field.search {
+  .mat-form-field-underline {
+    display: none;
+  }
+}
+
+button.btn-more {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}

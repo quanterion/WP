@@ -1,0 +1,28 @@
+<div mat-dialog-content class="overflow-hidden" *ngIf="downloadResponse$ | async; let response; else wait">
+  <ng-container *ngIf="response.progress || response.progress === 0">
+    <h3 class="text-center push-bottom-xxl hint" i18n>Downloading file {{file.name}}</h3>
+    <mat-progress-bar [mode]="getProgressMode(response)" [value]="response.progress"></mat-progress-bar>
+    <div class="text-center push-top hint">
+      <span *ngIf="response.progress === -2" i18n>Please wait...</span>
+      <span *ngIf="response.progress === -1" i18n>Preparing...</span>
+      <span *ngIf="response.progress >= 0 && response.progress <= 100" i18n>Downloading {{response.progress}}%</span>
+    </div>
+    <mat-dialog-actions align="end">
+      <button mat-button [mat-dialog-close]="false">Cancel</button>
+    </mat-dialog-actions>
+  </ng-container>
+    <ng-container *ngIf="response.error">
+      <app-message label="Error" i18n-label color="warn" icon="error">
+        <span i18n>{{response.error}}</span>
+      </app-message>
+      <mat-dialog-actions align="end">
+        <button mat-button [mat-dialog-close]="false">Close</button>
+      </mat-dialog-actions>
+    </ng-container>
+</div>
+<ng-template #wait>
+  <h3 mat-dialog-title i18n>Please wait</h3>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+  </mat-dialog-actions>
+</ng-template>

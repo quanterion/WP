@@ -1,0 +1,13 @@
+:host {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+nav {
+    background: whitesmoke;
+}
+
+div.hidden {
+    display: none;
+}

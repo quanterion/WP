@@ -1,0 +1,60 @@
+<mat-toolbar>
+  <button *ngIf="auth.isAuthenticated | async" mat-raised-button class="add-catalog" color="primary"
+    (click)="addNewCatalog()">
+    <mat-icon>add</mat-icon>
+    <span i18n>ADD CATALOG</span>
+  </button>
+</mat-toolbar>
+
+<ng-container *wpWait="catalogs$ as catalogs">
+  <mat-expansion-panel *ngIf="auth.isAuthenticated | async" expanded="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>My catalogs</mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <mat-nav-list *ngIf="catalogs.my.length > 0; else empty" class="my">
+      <a mat-list-item *ngFor="let c of catalogs.my" [routerLink]="getCatalogLink(c)">
+        <img matListAvatar class="push catalog-image" [src]="c | preview">
+        <span class="catalog-name">{{c.name}}</span>
+        <button class="remove" mat-icon-button (click)="removeCatalog($event, c)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </a>
+    </mat-nav-list>
+
+  </mat-expansion-panel>
+
+  <mat-expansion-panel expanded="true">
+    <mat-expansion-panel-header>
+      <mat-panel-title i18n>All catalogs</mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <mat-nav-list>
+      <mat-nav-list *ngIf="catalogs.all.length > 0; else emptyShared" class="all">
+        <a mat-list-item *ngFor="let c of catalogs.all" [routerLink]="getCatalogLink(c)">
+          <img matListAvatar class="push catalog-image" [src]="c | preview">
+          <span class="catalog-name">{{c.name}}</span>
+          <button *ngIf="auth.admin" class="remove" mat-icon-button (click)="removeCatalog($event, c)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </a>
+      </mat-nav-list>
+    </mat-nav-list>
+
+  </mat-expansion-panel>
+</ng-container>
+
+<ng-template #empty>
+  <div fxLayout="column" fxLayoutAlign="center center" class="tc-grey-500 pad-sm">
+    <mat-icon matListAvatar>filter_none</mat-icon>
+    <span class="mat-subhead" i18n>Catalogs you create will live here</span>
+    <button mat-raised-button color="accent" (click)="addNewCatalog()" class="text-upper push-md" i18n>CREATE</button>
+  </div>
+</ng-template>
+
+<ng-template #emptyShared>
+  <div fxLayout="column" fxLayoutAlign="center center" class="tc-grey-500 pad-sm">
+    <mat-icon matListAvatar>filter_none</mat-icon>
+    <span class="mat-subhead" i18n>No shared catalogs</span>
+  </div>
+</ng-template>

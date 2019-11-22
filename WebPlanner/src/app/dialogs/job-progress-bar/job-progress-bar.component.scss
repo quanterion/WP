@@ -1,0 +1,6 @@
+:host:not(:empty) {
+  display: flex;
+  flex: auto;
+  align-items: center;
+  flex-wrap: wrap;
+}

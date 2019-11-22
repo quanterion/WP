@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Корневой Дата="11.09.2017" Время="00:44:57">
+	<Town ID="46bc4e4c-0ea3-11e1-a6f4-000423d2fac4" CITY_ID="87" Name="Москва 11 Кронштадский б-р Мебель России" Address="г.Москва, Крондштатский б-р, 14" Phone="(499) 685-10-48" e-mail="Msk11-Sell@angstrem.net" Path="S:\Москва\Москва — 11 (Крондштатский Меб. России)">export_bazis_groupA.7z
+		<Sellers>
+			<Employee ID_Sell="123154c-0ea3-11e1-a6f4-000423d2fac4" Seller="Раткина Аурика Вячеславовна"/>
+			<Employee ID_Sell="123154c-0ea3-11e1-a6f4-000423d2fac5" Seller="Кокина Роза Маратовна"/>
+			<Employee ID_Sell="123154c-0ea3-11e1-a6f4-000423d2fac6" Seller="Каркачева Светлана Петровна"/>
+		</Sellers>
+	</Town>
+</Корневой>

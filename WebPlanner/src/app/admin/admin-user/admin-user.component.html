@@ -1,0 +1,190 @@
+<mat-card class="mat-typography user-info" *ngIf="user$ | async; let user">
+  <div fxLayout='row' class="user-info-title">
+    <mat-toolbar fxFlex *ngIf="user.id === -1">
+      <span i18n>Create a new user</span>
+    </mat-toolbar>
+    <mat-toolbar fxFlex *ngIf="user.id > 0">
+      <a *ngIf="user.parentUserId" mat-raised-button color="primary" class="push-right" [routerLink]="['/admin', 'user', user.parentUserId]" >
+        <mat-icon>directions_run</mat-icon>
+        <span i18n>STORE</span>
+      </a>
+      <mat-icon role="img" class="push-right">account_circle</mat-icon>
+      <span class="pad-right">{{user.fullName || user.name}}</span>
+      <button class="user-login-as" mat-button (click)="loginAs(user)">
+        <mat-icon>link</mat-icon>
+        <span i18n>Login As</span>
+      </button>
+      <button *ngIf="user.locked" mat-raised-button color="accent" (click)="unlock(user)">
+        <mat-icon>link</mat-icon>
+        <span i18n>UNLOCK</span>
+      </button>
+      <span fxFlex></span>
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="verifyEmail(user)" [disabled]="user.emailConfirmed">
+          <mat-icon>link</mat-icon>
+          <span i18n>Verify email</span>
+        </button>
+        <button mat-menu-item (click)="changePassword(user)">
+          <mat-icon>link</mat-icon>
+          <span i18n>Change Password</span>
+        </button>
+        <button mat-menu-item (click)="removeUser(user)">
+          <mat-icon>delete</mat-icon>
+          <span i18n>Delete User</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+  </div>
+  <p></p>
+  <form novalidate #userInfoForm="ngForm" [@.disabled]="true">
+    <mat-tab-group>
+      <mat-tab label="Main" i18n-label>
+        <div class="pad user-fields">
+          <div fxLayout="row" *ngIf="user.id === -1">
+            <mat-icon role="img" class="push-right">account_circle</mat-icon>
+            <mat-form-field fxFlex class="user-info-row">
+              <input matInput i18n-placeholder placeholder="User login" [(ngModel)]="user.name" name="name" required>
+            </mat-form-field>
+          </div>
+          <div fxLayout="row" *ngIf="user.id === -1">
+            <mat-icon role="img" class="push-right">code</mat-icon>
+            <mat-form-field fxFlex class="user-info-row">
+              <input matInput i18n-placeholder placeholder="Password" [(ngModel)]="user.password" name="password" minlength="8" #passwordCtrl="ngModel">
+              <mat-error *ngIf="!passwordCtrl.valid && !passwordCtrl.pristine" i18n>
+                Your password should have at least 8 characters
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div fxLayout="row">
+            <mat-icon role="img" class="push-right">account_circle</mat-icon>
+            <mat-form-field fxFlex class="user-info-row">
+              <input matInput i18n-placeholder placeholder="Name" [(ngModel)]="user.fullName" name="fullname" required>
+            </mat-form-field>
+          </div>
+
+          <div fxLayout="row">
+            <mat-icon role="img" class="push-right">email</mat-icon>
+            <mat-form-field fxFlex>
+              <input matInput [(ngModel)]="user.email" name="email" [email]="!!user.email" #email="ngModel" placeholder="E-mail">
+              <small [hidden]="email.valid || email.pristine || !userInfoForm.submitted" class="has-error" i18n>
+                Invalid email address
+              </small>
+            </mat-form-field>
+          </div>
+
+          <div fxLayout="row">
+            <mat-icon role="img" class="push-right">phone</mat-icon>
+            <mat-form-field fxFlex>
+              <input matInput placeholder="Phone" i18n-placeholder [(ngModel)]="user.phone" name="phone">
+            </mat-form-field>
+          </div>
+
+          <div fxLayout="row">
+            <mat-icon role="img" class="push-right">home</mat-icon>
+            <mat-form-field fxFlex>
+              <input matInput placeholder="Address" i18n-placeholder [(ngModel)]="user.address" name="address">
+            </mat-form-field>
+          </div>
+
+          <div fxLayout="row">
+            <mat-icon role="img" class="push-right">star</mat-icon>
+            <mat-form-field fxFlex>
+              <input matInput placeholder="External Id" i18n-placeholder [(ngModel)]="user.externalId" name="externalId">
+            </mat-form-field>
+          </div>
+
+          <div fxLayout="row" *ngIf="user.activePriceListId">
+            <mat-icon role="img" class="push-right">monetization_on</mat-icon>
+            <mat-form-field fxFlex>
+              <input matInput placeholder="Price list" i18n-placeholder readonly [value]="user.activePriceListId">
+            </mat-form-field>
+            <button mat-raised-button (click)="openPriceList(user.activePriceListId)" class="push-left" i18n>VIEW</button>
+          </div>
+
+          <div fxLayout="row">
+            <mat-icon role="img" class="push-right">note</mat-icon>
+            <mat-form-field fxFlex>
+              <mat-select placeholder="Roles" i18n-placeholder [ngModel]="user.roles" name="roles" multiple>
+                <mat-option *ngIf="superAdmin()" value="superadmin" i18n>Root</mat-option>
+                <mat-option *ngFor="let role of roles$ | async" [value]="role.name">
+                  <span>{{role.name}}</span>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <a mat-raised-button routerLink="/admin/users/roles" i18n>EDIT ROLES</a>
+          </div>
+
+          <div fxLayout="row">
+            <mat-icon role="img" class="push-right">{{user.disabled ? 'lock' : 'lock_open'}}</mat-icon>
+            <mat-checkbox fxFlex [ngModel]="user.disabled" name="disabled" i18n>Locked</mat-checkbox>
+          </div>
+        </div>
+        <div fxLayout="row" class="pad">
+          <button color="primary" class="user-info-button-save" mat-raised-button
+            [disabled]="!userInfoForm.form.dirty" (click)="saveUser(user, userInfoForm.form)">
+            <span *ngIf="user.id > 0" i18n>SAVE</span>
+            <span *ngIf="user.id === -1" i18n>CREATE</span>
+          </button>
+          <span fxFlex></span>
+        </div>
+      </mat-tab>
+      <mat-tab *ngIf="projectCount$ | async; let count">
+        <ng-template matTabLabel>
+          <span [matBadge]="count" matBadgeOverlap="false" i18n>Projects</span>
+        </ng-template>
+        <app-projects [userId]="user.id"></app-projects>
+      </mat-tab>
+      <mat-tab *ngIf="user.id > 0 && !user.roles.includes('seller') && !user.parentUserId">
+        <ng-template matTabLabel>
+          <span [matBadge]="user.employees?.length" matBadgeOverlap="false" i18n>Sellers</span>
+        </ng-template>
+        <mat-table #sellersTable *ngIf="user.employees.length" #table [dataSource]="user.employeeList" matSort>
+          <ng-container matColumnDef="login">
+            <mat-header-cell *matHeaderCellDef i18n>Login</mat-header-cell>
+            <mat-cell *matCellDef="let employee" (click)="goToUser(employee.id)"> {{employee.userName}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="fullName">
+            <mat-header-cell *matHeaderCellDef mat-sort-header i18n>Name</mat-header-cell>
+            <mat-cell *matCellDef="let employee" (click)="goToUser(employee.id)" [class.disabled]="employee.disabled"> {{employee.fullName}} </mat-cell>
+          </ng-container>
+          <ng-container matColumnDef="email">
+            <mat-header-cell *matHeaderCellDef mat-sort-header i18n>E-mail</mat-header-cell>
+            <mat-cell *matCellDef="let employee">
+              <span fxFlex>{{employee.email}}</span>
+
+              <button mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="goToUser(employee.id)">
+                  <mat-icon>build</mat-icon>
+                  <span i18n>Edit user</span>
+                </button>
+                <button mat-menu-item (click)="loginAs(employee)">
+                  <mat-icon>link</mat-icon>
+                  <span i18n>Login as</span>
+                </button>
+                <button mat-menu-item (click)="removeUser(employee)">
+                  <mat-icon>delete</mat-icon>
+                  <span i18n>Delete seller</span>
+                </button>
+              </mat-menu>
+            </mat-cell>
+          </ng-container>
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+        <button class="push" mat-button (click)="newSeller(user.id)">
+          <mat-icon>add</mat-icon>
+          <span i18n>NEW SELLER</span>
+        </button>
+      </mat-tab>
+      <mat-tab *ngIf="user.id > 0" label="Pricelists" i18n-label>
+        <app-price-lists [userId]="user.id"></app-price-lists>
+      </mat-tab>
+    </mat-tab-group>
+  </form>
+</mat-card>

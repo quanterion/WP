@@ -1,0 +1,15 @@
+<h1 mat-dialog-title *ngIf="title">{{title}}</h1>
+<mat-dialog-content>
+  <span class="message">{{message}}</span>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button
+          #closeBtn
+          (keydown.arrowright)="acceptBtn.focus()"
+          [mat-dialog-close]="false" i18n>CANCEL</button>
+  <button mat-button
+          color="accent"
+          #acceptBtn
+          (keydown.arrowleft)="closeBtn.focus()"
+          [mat-dialog-close]="true" i18n>OK</button>
+</mat-dialog-actions>

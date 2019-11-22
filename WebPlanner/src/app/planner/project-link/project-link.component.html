@@ -1,0 +1,48 @@
+<h1 matDialogTitle>
+  <span *ngIf="!emailMode" i18n>Link to current view</span>
+  <span *ngIf="emailMode" i18n>Send link by email</span>
+</h1>
+<div mat-dialog-content fxLayout="column">
+  <mat-form-field *ngIf="!emailMode" fxFlex>
+    <input #linkElem matInput [value]="url " readonly="true" class="link-input">
+  </mat-form-field>
+  <div *ngIf="!emailMode" fxLayout="row">
+    <mat-checkbox *ngIf="data.editableUrl" [formControl]="editable" i18n>Editable link</mat-checkbox>
+    <span fxFlex></span>
+    <button mat-icon-button color="primary" shareButton="whatsapp" [url]="url" i18n-matTooltip matTooltip="Share in WhatsApp">
+      <mat-icon svgIcon="whatsapp"></mat-icon>
+    </button>
+    <button mat-icon-button color="primary" shareButton="vk" [url]="url" i18n-matTooltip matTooltip="Share in vk.com">
+      <mat-icon svgIcon="vk"></mat-icon>
+    </button>
+    <button mat-icon-button color="primary" shareButton="facebook" [url]="url" i18n-matTooltip matTooltip="Share in Facebook">
+      <mat-icon svgIcon="facebook"></mat-icon>
+    </button>
+    <button *ngIf="auth.userId" mat-icon-button color="primary" (click)="startEmailMode()" i18n-matTooltip matTooltip="Send link by email">
+      <mat-icon>email</mat-icon>
+    </button>
+    <button mat-icon-button color="primary" (click)="copy()" i18n-matTooltip matTooltip="Copy link">
+      <mat-icon>content_copy</mat-icon>
+    </button>
+  </div>
+  <app-message *ngIf="copied && !emailResult" color="primary" i18n>Link copied to clipboard</app-message>
+  <app-message *ngIf="emailResult && emailResult.ok" color="primary" i18n>Email successfully sent</app-message>
+  <app-message *ngIf="emailResult && emailResult.error" color="warn" label="Failed to send email" i18n-label>
+    {{emailResult.error}}
+  </app-message>
+  <form *ngIf="emailMode" [formGroup]="emailForm" fxLayout="column">
+    <mat-form-field appearance="fill" floatLabel="always">
+      <input #emailInput matInput [formControl]="email" placeholder="Email" i18n-placeholder>
+      <mat-error *ngIf="email.errors" i18n>Enter correct email address</mat-error>
+    </mat-form-field>
+    <app-ckeditor [formControl]="emailBody"></app-ckeditor>
+    <mat-progress-bar *ngIf="emailForm.disabled" mode="indeterminate"></mat-progress-bar>
+  </form>
+</div>
+<div mat-dialog-actions align="end">
+  <button *ngIf="emailMode" mat-raised-button color="primary" (click)="sendEmail()" [disabled]="emailForm.disabled">
+    <mat-icon>email</mat-icon>
+    <span i18n>SEND EMAIL</span>
+  </button>
+  <button mat-raised-button matDialogClose i18n>CLOSE</button>
+</div>

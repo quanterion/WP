@@ -1,0 +1,14 @@
+<nav mat-tab-nav-bar class="pad">
+  <a mat-tab-link
+    routerLinkActive #rlInfo="routerLinkActive"
+    [active]="rlInfo.isActive"
+    routerLink="/account/info" i18n>Info</a>
+  <a mat-tab-link
+    routerLinkActive #rlPriceLists="routerLinkActive"
+    [active]="rlPriceLists.isActive"
+    routerLink="/account/price-lists" i18n>Price-lists</a>
+
+  <span fxFlex></span>
+  <a mat-tab-link routerLink="/account/changepassword" i18n>CHANGE PASSWORD</a>
+</nav>
+<router-outlet></router-outlet>

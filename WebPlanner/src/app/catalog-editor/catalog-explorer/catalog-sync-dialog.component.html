@@ -1,0 +1,32 @@
+<h1 mat-dialog-title i18n>Catalog synchronization</h1>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <div fxLayout="row" class="field">
+      <mat-icon role="img" class="push-right">link</mat-icon>
+      <mat-form-field fxFlex>
+        <input matInput placeholder="Catalog folder url" i18n-placeholder [formControl]="catalogUrl" class="catalog">
+      </mat-form-field>
+    </div>
+    <div fxLayout="row">
+      <mat-icon role="img" class="push-right">account_circle</mat-icon>
+      <mat-form-field fxFlex>
+        <input matInput placeholder="Token" i18n-placeholder [formControl]="token" class="token">
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutGap="16px">
+      <mat-checkbox [formControl]="updateExistingModels" i18n>Update existing models</mat-checkbox>
+      <mat-checkbox [formControl]="removeMissingModels" i18n>Remove missing models</mat-checkbox>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <ng-container *ngIf="!progress$">
+      <span class="flex-auto"></span>
+      <button mat-raised-button color="primary" #acceptBtn [disabled]="!form.valid" (click)="sync()"
+        i18n>SYNC</button>
+  </ng-container>
+  <app-job-progress-bar [value]="progress$ | async">
+    <app-message job-success class="success" color="primary" icon="info" i18n>Sync finished</app-message>
+    <button mat-raised-button color="primary" mat-dialog-close i18n>CLOSE</button>
+  </app-job-progress-bar>
+</mat-dialog-actions>

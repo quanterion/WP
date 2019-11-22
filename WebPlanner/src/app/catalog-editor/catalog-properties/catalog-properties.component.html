@@ -1,0 +1,40 @@
+<div fxLayout="row" [style.width.%]="100">
+  <mat-table *ngIf="properties.data.length; else empty" [dataSource]="properties" matSort #sortForDataSource="matSort" class="pad-sm">
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef mat-sort-header i18n>Name</mat-header-cell>
+      <mat-cell *matCellDef="let p">
+        <span class="item-name" fxFlex>{{p.name}}</span>
+        <button mat-icon-button (click)="removeProperty(p)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"
+      (click)="selectProperty(row)"
+      [class.selected]="editedProperty && row.id === editedProperty.id">
+    </mat-row>
+  </mat-table>
+
+  <ng-template #empty>
+    <div class="push" i18n>
+      Properties allows you to configure multiple variants of single 3d model with different materials, parameters, and prices
+    </div>
+  </ng-template>
+
+  <app-catalog-property *ngIf="editedProperty; else noProp"
+    class="pad" [property]="editedProperty" fxFlex>
+  </app-catalog-property>
+
+  <ng-template #noProp>
+    <div *ngIf="properties.data.length" fxFlex class="push-lg text-center" i18n>
+      Select property to configure it
+    </div>
+  </ng-template>
+</div>
+
+<div class="app-action">
+  <button mat-fab (click)="addNewProperty()">
+      <mat-icon class="md-24">add</mat-icon>
+  </button>
+</div>

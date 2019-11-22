@@ -1,0 +1,10 @@
+<mat-card>
+  <mat-card-title i18n>Email verification</mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    <app-message *ngIf="succeeded" label="Info" i18n-label
+      color="primary" icon="info" i18n>Email verification succeed! You can login now!</app-message>
+    <app-message *ngIf="error" label="Error" i18n-label
+      color="warn" icon="error">{{error}}</app-message>
+  </mat-card-content>
+</mat-card>

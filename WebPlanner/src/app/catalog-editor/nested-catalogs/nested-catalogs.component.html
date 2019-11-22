@@ -1,0 +1,23 @@
+<div *ngIf="catalogs | async; let list; else loading">
+  <ng-container *ngIf="list.length > 0; else empty">
+    <mat-list>
+      <mat-list-item *ngFor="let catalog of list">
+        <mat-icon mat-list-icon>assignment</mat-icon>
+        <a matLine [routerLink]="['/catalog', catalog.id]">{{catalog.name}}</a>
+        <p mat-line>{{catalog.description}}</p>
+      </mat-list-item>
+    </mat-list>
+  </ng-container>
+
+  <div class="app-action">
+    <button mat-fab (click)="addNewFragmentCatalog()">
+        <mat-icon class="md-24">add</mat-icon>
+    </button>
+  </div>
+</div>
+<ng-template #loading>
+  <div i18n class="push">Loading fragment catalogs...</div>
+</ng-template>
+<ng-template #empty>
+  <div i18n class="push">There are no fragment catalogs. Create a new fragment catalog to continue</div>
+</ng-template>

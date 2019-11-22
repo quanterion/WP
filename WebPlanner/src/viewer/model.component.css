@@ -1,0 +1,111 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+div.canvas-container {
+    position: relative;
+}
+
+#canvas3d {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+}
+
+div.zoom-bar {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    background-color: #e0e0e0;
+}
+
+
+app-model-tree.side-tree {
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: 40%;
+    max-height: 100%;
+}
+
+div.materials {
+    width: 480px;
+    max-width: 40%;
+}
+
+.material-list
+{
+    position: absolute;
+    left: 80%;
+    top: 0%;
+    max-width: 40%;
+    max-height: 100%;
+}
+
+.selected-material {
+    z-index: 2;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow-y: auto;
+    background-color: white;
+}
+
+.model-func-button {
+    position: absolute;
+    right: 30%;
+}
+
+div.mat-editor {
+    flex: 30%;
+}
+
+img[tdFileDrop] {
+    border: 2px dotted transparent;
+}
+
+img[tdFileDrop].drop-zone {
+    border: 2px dotted whitesmoke;
+    background-color: red;
+    opacity: 0.5;
+}
+
+.drop-target {
+    border: 2px dotted clear;
+}
+
+.drop-zone {
+    border: 2px dotted whitesmoke;
+    background-color: red;
+    opacity: 0.5;
+}
+
+mat-progress-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -50px 0 0 -50px;
+    pointer-events: none;
+}
+
+mat-icon.hidden {
+    visibility: hidden;
+}
+
+button.compact {
+    position: absolute;
+}

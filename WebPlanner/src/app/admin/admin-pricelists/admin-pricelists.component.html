@@ -1,0 +1,11 @@
+<div fxFlex fxLayout="column">
+  <nav mat-tab-nav-bar class="pad">
+    <a mat-tab-link [routerLink]="[]" [queryParams]="{}"
+      [active]="(userId$ | async) === -1" class="push-right" i18n>All</a>
+    <a mat-tab-link [routerLink]="[]" [queryParams]="{user: 0}"
+      [active]="(userId$ | async) === 0" i18n>System</a>
+    <a mat-tab-link [routerLink]="[]" [queryParams]="{user: -2}"
+      [active]="(userId$ | async) === -2" i18n>From users</a>
+  </nav>
+  <app-price-lists fxFlex [userId]="userId$ | async"></app-price-lists>
+</div>

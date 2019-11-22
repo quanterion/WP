@@ -1,0 +1,16 @@
+<h1 matDialogTitle i18n>Link to current view</h1>
+<div fxLayout="row">
+  <mat-form-field fxFlex>
+    <input #linkElem matInput [value]="getLink(link)" readonly="true" class="link-input">
+  </mat-form-field>
+  <button mat-icon-button color="primary" (click)="copy()" i18n-matTooltip matTooltip="Copy link">
+    <mat-icon class="md-24">content_copy</mat-icon>
+  </button>
+</div>
+<div fxLayout="row" fxLayoutAlign="start center">
+  <mat-checkbox [(ngModel)]="checked">Compact view</mat-checkbox>
+  <app-message *ngIf="copied" color="primary" class="push-left" i18n>Link copied to clipboard</app-message>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button matDialogClose i18n>CLOSE</button>
+</div>

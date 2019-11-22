@@ -1,0 +1,64 @@
+:host {
+    overflow: auto;
+    background: none;
+    display: flex;
+    align-items: flex-start;
+}
+
+mat-tree {
+    overflow-y: auto;
+    background-color: transparent;
+    max-height: 100%;
+}
+
+mat-tree::-webkit-scrollbar {
+    width: 10px;
+    background-color: rgba(245, 245, 245, 0.4);
+}
+
+mat-tree::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background: rgba(0,0,0,0.1);
+    border: 1px solid #ccc;
+}
+
+mat-tree::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: linear-gradient(to right, #fff, #e4e4e4);
+    border: 1px solid #aaa;
+}
+
+mat-tree::-webkit-scrollbar-thumb:hover {
+    background: #fff;
+}
+
+mat-tree::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(to right, #22ADD4, #1E98BA);
+}
+
+.invisible {
+    display: none;
+}
+
+mat-tree ul, mat-tree li {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+    cursor: pointer;
+}
+
+.mat-tree-node {
+    padding-right: 8px;
+}
+
+.selected {
+    background-color: deepskyblue;
+}
+
+span.priceelem::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: teal;
+}

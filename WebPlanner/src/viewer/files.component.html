@@ -1,0 +1,100 @@
+<app-header fxLayoutAlign="start start" style="text-align:center"></app-header>
+<div class="fill push-top-sm overflow-hidden" *ngIf="info$ | async; let info; else loading">
+  <ng-container *ngIf="!uploadingMode; else uploadingView">
+    <div class="push-right-xs push-left-xs" fxFlexAlign="start end" fxFlex="30%" fxLayout="column">
+      <mat-nav-list class="catalogs" *ngIf="info.catalogs; else noCatalogs">
+        <h3 i18n mat-subheader>Catalogs:</h3>
+        <mat-list-item *ngFor="let c of info.catalogs" [class.selected]="info.selectedId === c.id"
+          (click)="openCatalog(c.id)">
+          <mat-icon mat-list-icon>folder</mat-icon>
+          <h4 mat-line fxFlexALign="start" fxFlexOffset="4px">{{c.name}}</h4>
+
+          <button mat-icon-button [matMenuTriggerFor]="actionMenu" fxFlexALign="end" fxFlexOffset="10px">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #actionMenu="matMenu">
+            <button mat-icon-button matTooltip="Delete" (click)="openDialogDelCatalog($event, info.catalogs, c)">
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Rename" (click)="openRenameCatalogDialog($event, c)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </mat-menu>
+
+          <mat-divider></mat-divider>
+        </mat-list-item>
+      </mat-nav-list>
+      <div fxLayoutAlign="left" fxLayout="row">
+        <button mat-button class="conf-button push-top-xxl" fxFlexAlign="end" (click)="addCatalog = !addCatalog">
+          <mat-icon mat-list-icon>create_new_folder</mat-icon>
+          <span i18n> Add new catalog</span>
+        </button>
+      </div>
+      <div *ngIf="addCatalog">
+        <form class="catalog-creater">
+          <mat-form-field class="push" [style.max-width.%]="90">
+            <input matInput placeholder="Enter name of new catalog" i18n-placeholder #name>
+          </mat-form-field>
+          <button mat-button class="conf-button" (click)="addNewCatalog(name.value); addCatalog = false">
+            <span i18n>Create</span>
+          </button>
+        </form>
+      </div>
+      <ng-template #noCatalogs>
+        <div fxLayout="column" fxLayoutAlign="center">
+          <span i18n fxFlexOffset="100px" fxFlexAlign="center">There are no catalogs.</span>
+        </div>
+      </ng-template>
+    </div>
+    <mat-divider [vertical]="true"></mat-divider>
+    <div class="files overflow-hidden" fxFlex fxFlexAlign="end start" fxLayout="column" *ngIf="info.folder">
+      <button fxFlexAlign="center" mat-button class="conf-button push-bottom-sm push-top-xxl"
+        [class.attract]="info.folder.files.length === 0" [class.withFiles]="info.folder.files.length > 0" (click)="uploadingMode=true">
+        <mat-icon mat-list-icon>archive</mat-icon>
+        <span i18n>UPLOAD</span>
+      </button>
+      <mat-nav-list class="push-top-xl" [style.max-height.%]="100">
+        <ng-container *ngIf="info.folder.files.length > 0; else upload">
+          <h3 i18n mat-subheader>Files:</h3>
+          <mat-list-item [style.height.px]="272" *ngFor="let f of info.folder.files" (click)="openModel(f.id)">
+            <img mat-list-avatar class="material-avatar" [src]="f | preview">
+            <h4 mat-line fxFlexALign="start">{{f.name}}</h4>
+            <p mat-line i18n> {{f.modifiedAt | date}} </p>
+
+            <button mat-icon-button [matMenuTriggerFor]="actionFileMenu" (click)="$event.stopPropagation()"
+              fxFlexALign="end" fxFlexOffset="10px">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #actionFileMenu="matMenu">
+              <button mat-icon-button matTooltip="Delete" (click)="openDialogDelFile($event, f)">
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Rename" (click)="openRenameFileDialog($event, f)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </mat-menu>
+
+            <mat-divider></mat-divider>
+          </mat-list-item>
+        </ng-container>
+        <ng-template #upload>
+          <div fxLayout="column">
+            <div fxLayout="column" fxFlex="50px" fxLayoutAlign="center">
+              <span fxFlexAlign="center" i18n>There are no files in this folder yet. Press UPLOAD to
+                add files</span>
+            </div>
+          </div>
+        </ng-template>
+      </mat-nav-list>
+    </div>
+  </ng-container>
+  <ng-template #uploadingView>
+    <app-upload [folderId]="info.folder.id" (hide)="hideUploadMode()"></app-upload>
+  </ng-template>
+</div>
+<ng-template #loading>
+  <div class="progress-spinner" fxLayout="column">
+    <mat-spinner></mat-spinner>
+    <span class="text-center" i18n>Loading</span>
+  </div>
+</ng-template>

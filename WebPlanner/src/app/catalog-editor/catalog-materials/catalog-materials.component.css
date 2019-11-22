@@ -1,0 +1,41 @@
+:host {
+  flex: auto;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  align-content: stretch;
+}
+
+.drop-zone {
+  border: 2px dotted whitesmoke;
+  background-color: red;
+  opacity: 0.5;
+}
+
+div.list {
+  flex: auto;
+  max-height: 100%;
+  max-width: 500px;
+}
+
+mat-nav-list {
+  overflow-y: auto;
+}
+
+mat-nav-list>mat-list-item.material-item {
+  height: 72px;
+}
+
+img.mat-list-avatar.material-avatar {
+  width: 60px;
+  height: 60px;
+  padding: 4px;
+}
+
+app-material {
+  overflow-y: auto;
+}
+
+img.model-image {
+  max-height: 64px;
+}

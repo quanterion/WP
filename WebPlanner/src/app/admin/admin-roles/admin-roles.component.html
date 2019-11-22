@@ -1,0 +1,21 @@
+<mat-toolbar>
+  <span class="push-right" i18n>User roles</span>
+  <button *ngIf="!roleName.touched" mat-raised-button color="primary" (click)="inputNewRole()" i18n>ADD ROLE</button>
+  <mat-form-field *ngIf="roleName.touched" class="push-right">
+    <input matInput placeholder="Enter role name" i18n-placeholder [formControl]="roleName">
+  </mat-form-field>
+  <button *ngIf="roleName.touched" mat-raised-button color="primary"
+    (click)="createNewRole()" [disabled]="!roleName.valid" i18n>CREATE</button>
+</mat-toolbar>
+<div  class="flex-row">
+
+</div>
+<mat-nav-list>
+  <a *ngFor="let role of roles$ | async" mat-list-item>
+    <mat-icon matListIcon>supervised_user_circle</mat-icon>
+    <span class="flex-auto">{{role.name}}</span>
+    <button *ngIf="canRemoveRole(role.name)" mat-icon-button (click)="removeRole(role.name)">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </a>
+</mat-nav-list>

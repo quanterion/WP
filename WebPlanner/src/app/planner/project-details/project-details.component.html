@@ -1,0 +1,98 @@
+<div class="content flex-auto flex-column">
+  <mat-tab-group class="flex-auto" [selectedIndex]="data.tab">
+    <mat-tab label="Project" i18n-label>
+      <div class="pad" fxFlex>
+        <mat-form-field>
+          <input matInput placeholder="Project name" [(ngModel)]="data.file.name" [disabled]="data.readOnly">
+        </mat-form-field>
+        <mat-form-field *ngIf="canChangeShared()" >
+          <mat-select [(ngModel)]="data.shared" [disabled]="data.readOnly"
+             placeholder="Sharing" i18n-placeholder>
+            <mat-option value="!" i18n>None</mat-option>
+            <mat-option value="*" i18n>All</mat-option>
+            <mat-optgroup label="Roles" i18n-label>
+              <mat-option *ngFor="let role of roles$ | async" [value]="role.name">{{role.name}}</mat-option>
+            </mat-optgroup>
+          </mat-select>
+        </mat-form-field>
+        <ng-container *ngIf="auth.admin">
+          <h3 class="mat-typography" i18n>Date modified: {{data.file.modifiedAt | date:'medium'}}</h3>
+          <h3 class="mat-typography">
+            <span class="push-right-sm" i18n>Author:</span>
+            <a (click)="close()" [routerLink]="['/admin', 'user', data.file.ownerId]">{{ownerName$ | async}}</a>
+          </h3>
+        </ng-container>
+        <hr>
+        <h3 class="subheading-1" i18n>Project info</h3>
+        <div class="text-lg"><span i18n>Floors</span>: {{ data.statistics.floorCount }}</div>
+        <div class="text-lg"><span i18n>Rooms</span>: {{ data.statistics.rooms.length }}</div>
+        <div class="text-lg"><span i18n>Total area</span>: {{ data.statistics.livingArea }}</div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Advanced" i18n-label *ngIf="!data.readOnly || auth.admin">
+      <div class="pad" fxFlex fxLayout="row">
+        <div fxFlex="40%">
+          <div class="pad">
+            <button mat-raised-button color="warn" [matDialogClose]="'clone'" i18n>Clone project</button>
+          </div>
+          <div class="pad">
+            <button mat-raised-button color="warn" [matDialogClose]="'remove'" i18n>Remove project</button>
+          </div>
+          <div class="pad">
+            <button mat-raised-button color="warn" [matDialogClose]="'archive'" i18n>Archive project</button>
+          </div>
+
+          <ng-container *ngIf="data.download || auth.admin">
+            <div class="pad">
+              <button mat-raised-button color="accent" (click)="downloadFile('b3d')" matDialogClose i18n>Export to B3D</button>
+            </div>
+            <div class="pad">
+              <button mat-raised-button color="accent" (click)="downloadFile('step')" matDialogClose i18n>Export to STEP</button>
+            </div>
+            <div class="pad">
+              <button mat-raised-button color="accent" (click)="downloadFile('3ds')" matDialogClose i18n>Export to 3DS</button>
+            </div>
+            <div class="pad">
+              <button mat-raised-button color="accent" (click)="downloadFile('glb')" matDialogClose i18n>Export to GLTF</button>
+            </div>
+            <div class="pad">
+              <button mat-raised-button color="accent" (click)="downloadFile('fbx')" matDialogClose i18n>Export to FBX</button>
+            </div>
+          </ng-container>
+        </div>
+        <mat-divider [vertical]="true"></mat-divider>
+        <div fxFlex fxLayout="column" *ngIf="data.backups | async; let backups">
+          <div fxLayout="row">
+            <h3 fxFlex class="push mat-subheading-1" i18n>Previous versions</h3>
+            <button mat-raised-button class="push" color="primary" [matDialogClose]="'backup'" i18n>CREATE BACKUP</button>
+          </div>
+          <table fxFlex *ngIf="backups.length; else emptyBackups" mat-table [dataSource]="backups">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef i18n>Name</th>
+              <td mat-cell *matCellDef="let file">
+                <a [routerLink]="['/project', data.file.id]" [queryParams]="{backup: file.id}" target="_blank" (click)="close()">
+                  <img [src]="file | preview">
+                  <span *ngIf="file.name">{{file.name}}</span>
+                </a>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef i18n>Date</th>
+              <td mat-cell *matCellDef="let item"> {{item.modifiedAt | wpTimeAgo}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="versionColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: versionColumns;"></tr>
+          </table>
+        </div>
+        <ng-template #emptyBackups>
+          <div class="push" i18n>There are no backups for this project yet</div>
+        </ng-template>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+<mat-dialog-actions align="end">
+  <button mat-raised-button color="primary" [matDialogClose]="false" i18n>OK</button>
+</mat-dialog-actions>

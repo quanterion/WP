@@ -1,0 +1,35 @@
+@import '~@angular/material/theming';
+
+a
+{
+    font-size: x-large;
+    text-align: center;
+}
+
+a.cell {
+    @include mat-elevation(2);
+    display: inline-block;
+    position: relative;
+    width: 256px;
+    height: 256px;
+    background-color: white;
+    margin: 12px;
+    cursor: pointer;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+    }
+
+    span {
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+      right: 0px;
+      text-align: center;
+      padding: 4px;
+      box-sizing: content-box;
+      background: mintcream;
+      overflow: hidden;
+    }
+  }

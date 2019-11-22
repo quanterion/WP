@@ -1,0 +1,31 @@
+:host {
+  flex: auto;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  align-content: stretch;
+}
+
+.app-action {
+  display: inline-block;
+  position: fixed;
+  bottom: 20px;
+  right: 28px;
+}
+
+mat-table {
+  min-width: 25%;
+  overflow-y: auto;
+}
+
+mat-row {
+  cursor: pointer;
+}
+
+mat-row.selected {
+  background-color: #4285f4;
+}
+
+app-catalog-property {
+  overflow: auto;
+}

@@ -1,0 +1,11 @@
+table {
+    width: 100%;
+}
+
+tr[mat-row] {
+    cursor: pointer;
+}
+
+td mat-icon {
+    vertical-align: middle;
+}

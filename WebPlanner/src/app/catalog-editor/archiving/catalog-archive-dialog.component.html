@@ -1,0 +1,65 @@
+<h1 mat-dialog-title i18n>Catalog archiving</h1>
+<mat-dialog-content *ngIf="showArchives">
+  <ng-container *wpWait="archives$ as archives">
+    <span *ngIf="!archives.length" i18n>There is no archives</span>
+    <mat-nav-list>
+      <mat-list-item *ngFor="let archive of archives">
+        <a matLine [href]="downloadLink(archive.name)" target="_blank">
+          <span>{{archive.name}}</span>
+          <span class="push-left push-right text-md">{{archive.date | wpTimeAgo}}</span>
+          <span class="text-bold float-right push-right">{{archive.size | bytes}}</span>
+        </a>
+        <button mat-icon-button (click)="restoreFromArchive(archive.name)" matTooltip="Restore from archive"
+          i18n-matTooltip>
+          <mat-icon>unarchive</mat-icon>
+        </button>
+
+        <ng-template #deleteTemplate>
+          <span i18n>Remove archive {{archive.name}}?</span>
+          <mat-dialog-actions>
+            <span class="flex-auto"></span>
+            <button mat-raised-button color="primary" (click)="deleteConfirmDialog.close()" i18n>CANCEL</button>
+            <button mat-raised-button color="warn" (click)="deleteArchive(archive.name)" i18n>DELETE</button>
+          </mat-dialog-actions>
+        </ng-template>
+
+        <button mat-icon-button (click)="showDeleteConfirmation(deleteTemplate)" matTooltip="Delete archive"
+          i18n-matTooltip>
+          <mat-icon>delete</mat-icon>
+        </button>
+
+      </mat-list-item>
+    </mat-nav-list>
+  </ng-container>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <ng-container *ngIf="!progress$">
+    <span class="flex-auto"></span>
+    <td-file-upload defaultColor="accent" accept=".zip" (select)="restoreFromFile($event)" class="push-right">
+      <mat-icon>file_upload</mat-icon>
+      <ng-template td-file-input-label>
+        <mat-icon>attach_file</mat-icon><span i18n>RESTORE FROM ZIP</span>
+      </ng-template>
+    </td-file-upload>
+    <button mat-raised-button color="primary" (click)="archive()" i18n>CREATE ARCHIVE</button>
+  </ng-container>
+  <app-job-progress-bar [value]="progress$ | async">
+    <app-message job-success class="success" color="primary" icon="info">
+      <span *ngIf="!restoreMode" i18n>Archive finished</span>
+      <span *ngIf="restoreMode" i18n>Restore finished</span>
+    </app-message>
+    <button mat-raised-button color="primary" (click)="close()" i18n>CLOSE</button>
+  </app-job-progress-bar>
+</mat-dialog-actions>
+
+<ng-template #confirmTemplate>
+  <mat-dialog-content>
+    <span i18n>Are you sure to start?</span>
+    <span *ngIf="restoreMode" class="push-left-sm" i18n>It will replace all content of the catalog</span>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <span class="flex-auto"></span>
+    <button mat-raised-button color="primary" (click)="cancelTask()" i18n>CANCEL</button>
+    <button mat-raised-button color="warn" (click)="runTask()" i18n>START</button>
+  </mat-dialog-actions>
+</ng-template>

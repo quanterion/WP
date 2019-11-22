@@ -1,0 +1,52 @@
+<form novalidate #userAccountForm="ngForm">
+  <div class="pad user-fields">
+    <div fxLayout="row" fxLayoutAlign="start center">
+      <mat-icon role="img" class="push-right">account_circle</mat-icon>
+      <span class="push-right">{{auth.userName}}</span>
+      <mat-chip-list>
+        <mat-chip color="primary" selected="true" *ngFor="let role of auth.roles">{{role}}</mat-chip>
+      </mat-chip-list>
+      <span fxFlex></span>
+      <ng-container *ngIf="token$ | async; let token">
+        <span *ngIf="token !== -1" class="push-right">Token: <span class="token">{{token}}</span></span>
+        <button mat-button *ngIf="token === -1" (click)="createToken()" i18n>CREATE TOKEN</button>
+        <button mat-button *ngIf="token !== -1" (click)="removeToken()" i18n>REMOVE TOKEN</button>
+      </ng-container>
+    </div>
+    <p></p>
+
+    <div fxLayout="row" fxLayoutAlign="start baseline">
+      <mat-icon role="img" class="push-right">account_box</mat-icon>
+      <mat-form-field fxFlex>
+        <input matInput placeholder="Name" i18n-placeholder [(ngModel)]="auth.fullName" name="fullName">
+      </mat-form-field>
+    </div>
+    <p></p>
+
+    <div fxLayout="row" fxLayoutAlign="start baseline">
+      <mat-icon role="img" class="push-right">email</mat-icon>
+      <span>{{auth.email}}</span>
+      <span *ngIf="!auth.email" i18n>Email not assigned</span>
+    </div>
+    <p></p>
+
+    <div fxLayout="row" fxLayoutAlign="start baseline">
+      <mat-icon role="img" class="push-right">home</mat-icon>
+      <mat-form-field fxFlex>
+        <input matInput placeholder="Address" i18n-placeholder [(ngModel)]="auth.address" name="address">
+      </mat-form-field>
+    </div>
+
+    <div fxLayout="row" fxLayoutAlign="start baseline">
+      <mat-icon role="img" class="push-right">phone</mat-icon>
+      <mat-form-field fxFlex>
+        <input matInput placeholder="Phone" i18n-placeholder [(ngModel)]="auth.phone" name="phone">
+      </mat-form-field>
+    </div>
+  </div>
+  <div fxLayout="row" class="push-left push-right pad-bottom" *ngIf="userAccountForm.form.dirty">
+    <button color="primary" class="user-info-button-save" mat-raised-button (click)="saveUser(userAccountForm.form)"
+      i18n>CHANGE</button>
+    <span fxFlex></span>
+  </div>
+</form>

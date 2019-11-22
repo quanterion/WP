@@ -1,0 +1,22 @@
+:host {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+mat-dialog-content {
+    flex: auto;
+}
+
+.mt-list {
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+mat-list-item.property:hover {
+    background-color: #4285f4;
+}
+
+mat-dialog-content > span {
+    margin-top: 8px;
+}

@@ -1,0 +1,34 @@
+<h1 mat-dialog-title>
+  <span i18n>Print</span>
+  <button class="edit-order" *ngIf="data.order && !data.readOnly" mat-raised-button (click)="editOrder()" i18n>EDIT ORDER</button>
+</h1>
+<mat-dialog-content>
+  <mat-form-field *ngIf="reports$ | async; let reports; else empty" class="push-right">
+    <mat-select [formControl]="reportControl">
+      <mat-option *ngFor="let report of reports" [value]="report.id">{{report.name}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <ng-template #empty>
+    <span i18n>There is no reports configured</span>
+  </ng-template>
+
+  <td-dynamic-forms *ngIf="report$ | async; let report" [elements]="report.params.form">
+    <ng-template let-element ngFor [ngForOf]="report.params.form">
+      <ng-template let-control="control" [tdDynamicFormsError]="element.name">
+        <span *ngIf="control.touched || !control.pristine">
+          <span *ngIf="control.hasError('required')" i18n>Required</span>
+          <span *ngIf="control.hasError('min')" i18n>Min value: {{element.min}}</span>
+          <span *ngIf="control.hasError('max')" i18n>Max value: {{element.max}}</span>
+          <span *ngIf="control.hasError('minlength')" i18n>Min length value: {{element.minLength}}</span>
+          <span *ngIf="control.hasError('maxlength')" i18n>Max length value: {{element.minLength}}</span>
+        </span>
+      </ng-template>
+    </ng-template>
+  </td-dynamic-forms>
+
+</mat-dialog-content>
+<mat-dialog-actions>
+  <span class="flex-auto"></span>
+  <button mat-raised-button color="primary" (click)="print($event.altKey)" [disabled]="!valid()" i18n>PRINT</button>
+</mat-dialog-actions>

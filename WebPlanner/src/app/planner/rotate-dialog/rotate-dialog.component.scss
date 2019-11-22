@@ -1,0 +1,22 @@
+@media (min-width: 600px) {
+    :host {
+      width: 400px;
+    }
+  }
+  @media (max-width: 599px) {
+    :host {
+      width: 250px;
+    }
+  }
+  .input-wrapper {
+    // layout row
+    flex-direction: row;
+    box-sizing: border-box;
+    display: flex;
+
+    mat-form-field {
+      // flex
+      flex: 1;
+      box-sizing: border-box;
+    }
+  }

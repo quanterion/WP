@@ -1,0 +1,58 @@
+<form [formGroup]="form" fxLayout="column">
+  <mat-form-field>
+    <input matInput placeholder="Client name" i18n-placeholder [formControl]="name">
+    <mat-error *ngIf="name.errors" i18n>Enter client name</mat-error>
+  </mat-form-field>
+
+  <ng-container *ngIf="phoneVerification; else withoutPhoneVerification">
+    <div fxLayout="row" fxLayoutAlign="start baseline">
+      <mat-form-field fxFlex [appearance]="phoneStatus !== PhoneStatus.Unknown ? 'outline' : 'standard'" class="push-right">
+        <input *ngIf="phoneStatus !== PhoneStatus.Unknown" matInput placeholder="Client phone" i18n-placeholder [value]="phone.value" readonly>
+        <input [class.hidden]="phoneStatus !== PhoneStatus.Unknown" matInput placeholder="Client phone" i18n-placeholder [formControl]="phone">
+        <mat-icon matSuffix [class.confirmed]="phoneStatus === PhoneStatus.Confirmed">phone</mat-icon>
+        <mat-error *ngIf="phone.hasError('needsToConfirm')" i18n>Please, verify your phone number</mat-error>
+        <mat-error *ngIf="phone.hasError('incorrectPhone')" i18n>Incorrect phone! Please, try again</mat-error>
+      </mat-form-field>
+      <button mat-raised-button color="primary" *ngIf="!phone.value || phoneStatus === PhoneStatus.Unknown"
+        [disabled]="!phone.value" (click)="verifyPhoneNumber()">
+        <span i18n>VERIFY</span>
+      </button>
+      <button mat-raised-button color="primary" *ngIf="phoneStatus !== PhoneStatus.Unknown && phone.value && !sendingCode"
+        (click)="changePhoneNumber()">
+        <span i18n>EDIT</span>
+      </button>
+    </div>
+
+    <div *ngIf="phoneStatus === PhoneStatus.Processing">
+      <mat-progress-bar *ngIf="sendingCode; else sent" [mode]="'indeterminate'"></mat-progress-bar>
+      <ng-template #sent>
+        <div fxLayout="row" fxLayoutAlign="end baseline">
+          <mat-form-field class="push-right">
+            <input #smsInput matInput i18n-placeholder [formControl]="smsCode" placeholder="Enter sms code" (keydown.enter)="smsCodeConfirmButton.focus()">
+            <mat-error i18n>Incorrect code!</mat-error>
+          </mat-form-field>
+          <button #smsCodeConfirmButton mat-raised-button color="primary" [disabled]="!smsInput.value" (click)="verifyKey(smsCode.value)" >
+            <span i18n>OK</span>
+          </button>
+        </div>
+      </ng-template>
+    </div>
+    </ng-container>
+
+  <ng-template #withoutPhoneVerification>
+    <mat-form-field>
+      <input matInput placeholder="Client phone" i18n-placeholder [formControl]="phone">
+      <mat-error i18n>Please, enter your phone number</mat-error>
+    </mat-form-field>
+  </ng-template>
+
+  <mat-form-field>
+    <input matInput placeholder="Client email" i18n-placeholder [formControl]="email">
+  </mat-form-field>
+
+  <mat-form-field>
+    <input matInput placeholder="Client address" i18n-placeholder [formControl]="address">
+  </mat-form-field>
+
+  <td-dynamic-forms [form]="params" [elements]="paramFormElements"></td-dynamic-forms>
+</form>

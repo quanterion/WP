@@ -1,0 +1,7 @@
+<mat-toolbar>
+  <span fxFlex i18n>Bought Together</span>
+  <button mat-icon-button (click)="close.next()">
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<app-model-explorer class="flex-auto" [customFolder]="offers$" (modelDrag)="modelDrag.next($event)"></app-model-explorer>

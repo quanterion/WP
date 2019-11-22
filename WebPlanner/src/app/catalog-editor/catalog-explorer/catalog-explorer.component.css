@@ -1,0 +1,68 @@
+:host {
+  flex: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.explorer {
+    min-height: 200px;
+    flex: auto;
+    overflow: auto;
+}
+
+div.explorer.drop-zone {
+  border: 2px dotted whitesmoke;
+  background-color: red;
+  opacity: 0.5;
+}
+
+.item-name {
+  flex: 1 1 auto;
+}
+
+.model-image {
+  display: block;
+  margin: auto;
+  padding: 4px;
+}
+
+div.image-container {
+  min-width: 100px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+img.model-image {
+  border: 2px dotted transparent;
+}
+
+img.drop-zone {
+  border: 2px dotted whitesmoke;
+  background-color: red;
+  opacity: 0.5;
+}
+
+td-file-upload {
+  display: inline-block;
+  position: fixed;
+  bottom: 20px;
+  right: 40px;
+}
+
+mat-row.selected {
+  background-color: #4285f4;
+}
+
+mat-row.hidden {
+  opacity: 0.5
+}
+
+div.empty {
+  flex: auto;
+}
+
+.last-column-button {
+  position: absolute;
+  right: 0px;
+}

@@ -1,0 +1,37 @@
+  <h2 mat-dialog-title i18n>File properties</h2>
+  <mat-dialog-content (keyup.enter)="saveProperties()">
+    <mat-form-field>
+      <input matInput placeholder="Name" i18n-placeholder [formControl]="name" class="name">
+      <mat-error *ngIf="name.errors" i18n>Enter name</mat-error>
+    </mat-form-field>
+    <mat-form-field *ngIf="!isFolderPresent">
+      <input matInput placeholder="SKU" i18n-placeholder [formControl]="sku" [attr.cdkFocusInitial]="data.activeField === 'sku' || null">
+    </mat-form-field>
+    <mat-form-field *ngIf="!isFolderPresent">
+      <input matInput placeholder="Price" i18n-placeholder [formControl]="price" [attr.cdkFocusInitial]="data.activeField === 'price' || null">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-select placeholder="Sharing" i18n-placeholder [formControl]="shared" class="shared">
+        <mat-option value=" " i18n></mat-option>
+        <mat-option value="!" i18n>None</mat-option>
+        <mat-option value="*" i18n>All</mat-option>
+        <mat-optgroup label="Roles" i18n-label>
+          <mat-option *ngFor="let role of roles$ | async" [value]="role.name">{{role.name}}</mat-option>
+        </mat-optgroup>
+      </mat-select>
+    </mat-form-field>
+    <ng-container *ngIf="data.files.length === 1">
+      <mat-divider></mat-divider>
+      <h3 class="mat-typography" i18n>Date modified: {{data.files[0].modifiedAt | date}}</h3>
+    </ng-container>
+    <ng-container *ngIf="progressMode">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <h3 *ngIf="error" [style.color]="'red'" i18n>Failed to update properties!</h3>
+    </ng-container>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button [mat-dialog-close]="undefined" i18n>CANCEL</button>
+    <button mat-raised-button color="primary" (click)="saveProperties()" [disabled]="!form.valid">
+      <span i18n>SAVE</span>
+    </button>
+  </mat-dialog-actions>

@@ -1,0 +1,424 @@
+<mat-menu #projectMenu="matMenu" [overlapTrigger]="false" class="wide-menu">
+    <span fxHide fxShow.lt-sm class="push text-xxl">{{fileItem?.name}}</span>
+    <ng-container *ngIf="loaded; else loadingMenu">
+        <mat-nav-list *ngIf="settings.showFloors" class="push-bottom">
+            <h3 mat-subheader i18n class="pad">Floors</h3>
+            <mat-list-item *ngFor="let floor of floors; let i = index">
+                <span matLine *ngIf="floor.name" (click)="selectEntity(floor)">{{floor.name}}</span>
+                <span matLine *ngIf="!floor.name" (click)="selectEntity(floor)"><span i18n>Floor</span>&nbsp;{{i + 1}}</span>
+                <button mat-icon-button *ngIf="floors.length > 1"
+                    (click)="toggleVisibility(floor)">
+                    <mat-icon *ngIf="floor.visible">visibility</mat-icon>
+                    <mat-icon *ngIf="!floor.visible">visibility_off</mat-icon>
+                </button>
+                <button *ngIf="editable && floors.length > 1" mat-icon-button (click)="project.removeFloor(floor)"
+                    color="warn" i18n-matTooltip matTooltip="Remove floor">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </mat-list-item>
+        </mat-nav-list>
+        <div class="push-left push-right">
+            <div *ngIf="editable && settings.showFloors" fxLayout="row" fxLayoutGap="8px">
+                <button mat-raised-button (click)="project.addFloor()" class="inline-block" i18n>ADD FLOOR</button>
+                <!-- <button mat-raised-button (click)="addRoof()" class="inline-block" i18n>ADD ROOF</button> -->
+            </div>
+            <div class="pad-top pad-bottom-sm" fxLayout="row" fxLayoutGap="8px">
+                <button mat-raised-button (click)="renameProject()" color="primary" i18n>RENAME</button>
+                <button mat-raised-button (click)="projectDetails(0)" color="primary" i18n>PROJECT DETAILS</button>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="pad-top-sm pad-bottom" fxLayout="row" fxLayoutGap="8px">
+                <button mat-raised-button color="primary" (click)="newProject()" i18n>NEW PROJECT</button>
+                <button *ngIf="auth.isAuthenticated | async" mat-raised-button color="primary" (click)="cloneProject()" i18n>COPY PROJECT</button>
+                <button *ngIf="(auth.admin || embedded) && editable" mat-raised-button (click)="removeProject()" color="accent" i18n>DELETE</button>
+            </div>
+        </div>
+    </ng-container>
+    <ng-template #loadingMenu>
+        <div class="md-subhead pad" i18n>Project is loading...</div>
+    </ng-template>
+</mat-menu>
+
+<mat-menu #modelerMenu="matMenu" hasBackdrop="false" class="wide-menu">
+    <ng-template matMenuContent>
+        <app-ui-collection [collection]="ui.menu" [menu]="true" class="block"></app-ui-collection>
+        <ng-container *ngIf="editable && status && status.rotate">
+            <button mat-menu-item (click)="moveSelection()">
+                <mat-icon>swap_horiz</mat-icon>
+                <span i18n>Move selection...</span>
+            </button>
+            <button mat-menu-item (click)="rotateSelection()">
+                <mat-icon>3d_rotation</mat-icon>
+                <span i18n>Rotate selection...</span>
+            </button>
+            <hr>
+        </ng-container>
+        <ng-container *ngIf="status && status.allModels">
+            <button mat-menu-item (click)="replaceSelection()">
+                <mat-icon>repeat</mat-icon>
+                <span i18n>Replace</span>
+            </button>
+            <hr>
+        </ng-container>
+        <button mat-menu-item (click)="project.selectAll()">
+            <mat-icon>select_all</mat-icon>
+            <span i18n>Select all</span>
+        </button>
+        <button *ngIf="editable" mat-menu-item (click)="bulkReplace()">
+            <mat-icon>repeat</mat-icon>
+            <span i18n>Bulk replace</span>
+        </button>
+        <button *ngIf="hasSelection" mat-menu-item (click)="hideSelection()">
+            <mat-icon>visibility_off</mat-icon>
+            <span i18n>Hide selection</span>
+        </button>
+        <hr>
+        <button mat-menu-item (click)="project.animateAll(null, 1)">
+            <mat-icon>chevron_right</mat-icon>
+            <span i18n>Open all</span>
+        </button>
+        <button mat-menu-item (click)="project.animateAll(null, 0)">
+            <mat-icon>chevron_left</mat-icon>
+            <span i18n>Close all</span>
+        </button>
+        <ng-container *ngIf="status && status.model">
+            <hr>
+            <a mat-menu-item [routerLink]="['/project/', ds.modelId]" [queryParams]="linkQueryParams()">
+                <mat-icon>open_in_browser</mat-icon>
+                <span i18n>Edit in a new window</span>
+            </a>
+            <button *ngIf="settings.allowExport" mat-menu-item [matMenuTriggerFor]="exportMenu">
+                <mat-icon>file_download</mat-icon>
+                <span i18n>Download model</span>
+            </button>
+        </ng-container>
+    </ng-template>
+</mat-menu>
+
+<mat-menu #exportMenu="matMenu">
+    <ng-template matMenuContent>
+        <button mat-menu-item (click)="downloadFile('b3d')" target="_blank">Базис-Мебельщик</button>
+        <button mat-menu-item (click)="downloadFile('c3d')" target="_blank">KOMPAS 3D</button>
+        <button mat-menu-item (click)="downloadFile('stp')" target="_blank">STEP (MCAD)</button>
+        <button mat-menu-item (click)="downloadFile('3ds')" target="_blank">AUTODESK (3DS)</button>
+        <button mat-menu-item (click)="downloadFile('dae')" target="_blank">COLLADA (DAE)</button>
+        <button mat-menu-item (click)="downloadFile('glb')" target="_blank">GLTF (GLB)</button>
+        <button mat-menu-item (click)="downloadFile('fbx')" target="_blank">FBX</button>
+    </ng-template>
+</mat-menu>
+
+<mat-toolbar class="select-none" *ngIf="ds && !error && isDefaultAction" (mousedown)="popupTrigger.closeMenu()">
+    <button *ngIf="!backupId" mat-raised-button [matMenuTriggerFor]="projectMenu" class="flex-none">
+        <mat-icon class="md-24" >menu</mat-icon>
+        <span fxHide.lt-sm class="text-xxl">{{fileItem?.name}}</span>
+    </button>
+
+    <button *ngIf="editable" mat-icon-button (click)="undo()"
+        matTooltip="Undo" i18n-matTooltip [disabled]="!ds.undoName" [@undoAnimation]="undoRunCount">
+        <mat-icon>undo</mat-icon>
+    </button>
+    <button *ngIf="editable" mat-icon-button (click)="redo()"
+        matTooltip="Redo" i18n-matTooltip [disabled]="!ds.redoName" [@redoAnimation]="redoRunCount">
+        <mat-icon>redo</mat-icon>
+    </button>
+
+    <ng-container *ngIf="ds.layers.length">
+        <button mat-icon-button [matMenuTriggerFor]="layersMenu" matTooltip="Layers" i18n-matTooltip>
+            <mat-icon>layers</mat-icon>
+        </button>
+        <mat-menu overlapTrigger="false" #layersMenu="matMenu">
+            <ng-template matMenuContent>
+                <button mat-menu-item *ngFor="let layer of ds.layers" (click)="layer.visible = !layer.visible">
+                    <mat-icon>{{layer.visible ? 'visibility_on' : 'visibility_off'}}</mat-icon>
+                    <span>{{layer.name}}</span>
+                </button>
+                <ng-container *ngIf="hasHiddenLayers()">
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item (click)="showAllLayers()">
+                        <mat-icon>visibility_on</mat-icon>
+                        <span i18n>Show all layers</span>
+                    </button>
+                </ng-container>
+            </ng-template>
+        </mat-menu>
+    </ng-container>
+
+    <mat-button-toggle mat-icon-button *ngIf="editable" [value]="ds.options.collisions" (click)="toogleCollisionCheck()"
+        matTooltip="Check collisions between models" i18n-matTooltip>
+        <mat-icon svgIcon="intersection"></mat-icon>
+    </mat-button-toggle>
+
+    <button mat-icon-button *ngIf="editable" (click)="showProperties = !showProperties"
+        [disabled]="!hasSelection" matTooltip="Properties" i18n-matTooltip>
+        <mat-icon svgIcon="properties"></mat-icon>
+    </button>
+
+    <app-ui-collection [collection]="ui.toolbar"></app-ui-collection>
+
+    <button *ngIf="!backupId" mat-icon-button [matMenuTriggerFor]="modelerMenu">
+        <mat-icon>more_vert</mat-icon>
+    </button>
+
+    <button *ngIf="(auth.isAuthenticated | async) && !editable && loaded && !auth.admin && !backupId" mat-raised-button (click)="cloneProject()" color="primary">
+        <mat-icon>link</mat-icon>
+        <span i18n>COPY PROJECT</span>
+    </button>
+
+    <button *ngIf="!editable && auth.admin && !backupId" mat-button (click)="startEditing()">
+        <mat-icon>edit</mat-icon>
+        <span i18n>EDIT</span>
+    </button>
+    <button *ngIf="!editable && backupId" mat-button (click)="restoreBackup()">
+        <mat-icon>backup</mat-icon>
+        <span class="push-left-sm" i18n>RESTORE BACKUP</span>
+    </button>
+
+    <span class="fill-remaining-space"></span>
+
+    <ng-container *ngIf="!handset && fileItem && orderSettings.enabled">
+        <span *ngIf="fileItem.client" class="client">
+            <span>{{fileItem.client.name}}</span>
+            <span *ngIf="fileItem.client.phone" class="push-left">({{fileItem.client.phone}})</span>
+        </span>
+        <button *ngIf="editable" mat-icon-button (click)="editClient()" matTooltip="Edit client info" i18n-matTooltip>
+            <mat-icon>edit</mat-icon>
+        </button>
+        <span class="push-right"></span>
+    </ng-container>
+
+    <a mat-button *ngIf="rootId" [routerLink]="['/project/', ds.modelId]" [queryParams]="linkQueryParams(true)" i18n>Back to model</a>
+
+    <span *ngIf="estimate.models.length" class="pad" fxHide.lt-sm>{{estimate.price}} &#8381;</span>
+    <mat-form-field *ngIf="(auth.admin || estimate.models.length) && prices && prices.length">
+        <mat-select [value]="activePriceId" matTooltip="Select pricelist" i18n-matTooltip
+            (selectionChange)="usePriceList($event)">
+            <mat-option *ngIf="auth.admin" [value]="0" i18n>None</mat-option>
+            <mat-option *ngFor="let price of prices" [value]="price.id">{{ price.name }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+    <button mat-icon-button (click)="specification()" *ngIf="estimate.models.length && !backupId" [matBadge]="estimate.count" matBadgeColor="accent">
+        <mat-icon>shopping_cart</mat-icon>
+    </button>
+
+    <span class="overflow-hidden">
+        <button mat-icon-button *ngIf="editable && ds.undoName || ds.redoName" [matMenuTriggerFor]="bookmarkMenu" i18n-matTooltip matTooltip="Bookmarks" fxHide.lt-sm>
+            <mat-icon>bookmarks</mat-icon>
+        </button>
+        <mat-menu #bookmarkMenu="matMenu" xPosition="before" yPosition="below" overlapTrigger=false>
+            <ng-template matMenuContent>
+                <ng-container *ngIf="bookmarks$ | async as list; else bookmarksLoading">
+                    <ng-container *ngIf="list.length; else noBookmarks">
+                        <mat-nav-list>
+                            <mat-list-item href="..." *ngFor="let bm of list" (click)="goToBookmark(bm)">
+                                <mat-icon matListIcon *ngIf="bm.id !== currentBookmark()">bookmark_border</mat-icon>
+                                <mat-icon matListIcon *ngIf="bm.id === currentBookmark()">bookmark</mat-icon>
+                                <span fxFlex>{{bm.name}} </span>
+                                <button mat-icon-button (click)="removeBookmark(list, bm, $event)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </mat-list-item>
+                        </mat-nav-list>
+                    </ng-container>
+                    <ng-template #noBookmarks>
+                        <div class="push body-1" i18n>There are no bookmarks in the project. Click ADD to create one.</div>
+                    </ng-template>
+                    <mat-divider></mat-divider>
+                    <button mat-menu-item (click)="addBookmark(list)">
+                        <mat-icon>book</mat-icon>
+                        <span i18n>ADD BOOKMARK</span>
+                    </button>
+                </ng-container>
+                <ng-template #bookmarksLoading>
+                    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </ng-template>
+            </ng-template>
+        </mat-menu>
+
+        <button mat-icon-button (click)="measureDistance()" i18n-matTooltip matTooltip="Measure">
+            <mat-icon svgIcon="ruler"></mat-icon>
+        </button>
+
+        <button mat-icon-button (click)="generateViewLink()" i18n-matTooltip matTooltip="Share link">
+            <mat-icon>link</mat-icon>
+        </button>
+
+        <button mat-icon-button (click)="takePhoto()" i18n-matTooltip matTooltip="Take a photo">
+            <mat-icon>add_a_photo</mat-icon>
+        </button>
+
+        <button mat-icon-button (click)="print()">
+            <mat-icon>print</mat-icon>
+        </button>
+
+        <button mat-icon-button [mat-menu-trigger-for]="shadeMenu">
+            <mat-icon>settings_notifications</mat-icon>
+        </button>
+        <mat-menu xPosition="before" #shadeMenu="matMenu" class="wide-menu">
+            <button mat-menu-item (click)="toggleFullScreen()">
+                <mat-icon>fullscreen</mat-icon>
+                <span i18n>Full screen</span>
+            </button>
+            <button mat-menu-item (click)="saveDefaultCamera()">
+                <mat-icon>linked_camera</mat-icon>
+                <span i18n>Save current view as default</span>
+            </button>
+            <button *ngIf="editable || auth.admin" mat-menu-item (click)="makeThumbnail(true)">
+                <mat-icon>image</mat-icon>
+                <span i18n>Update thumbnail</span>
+            </button>
+            <button *ngIf="auth.admin" mat-menu-item (click)="compress()">
+                <mat-icon>archive</mat-icon>
+                <span i18n>Compress</span>
+            </button>
+            <hr>
+            <button mat-menu-item (click)="displayModelStatistics()">
+                <mat-icon>description</mat-icon>
+                <span i18n>Model information</span>
+            </button>
+            <button mat-menu-item (click)="about()">
+                <mat-icon>info</mat-icon>
+                <span i18n>About WebPlanner</span>
+            </button>
+        </mat-menu>
+    </span>
+</mat-toolbar>
+
+<mat-toolbar *ngIf="ds && !error && !isDefaultAction">
+    <button *ngFor="let cmd of commands" mat-raised-button (click)="cmd.command()" color="primary" class="push-right">
+        {{cmd.name}}
+    </button>
+    <span class="pad">
+        {{actionHint}}
+    </span>
+    <span class="fill-remaining-space"></span>
+    <button mat-raised-button (click)="cancelAction()" color="accent" i18n>CANCEL</button>
+</mat-toolbar>
+
+<div class="container" tabindex="0">
+    <div class="display">
+        <canvas class="select-none" #canvas3d [style.cursor]="actionCursor"
+            (contextmenu)="contextMenu($event, popupTrigger)" (dblclick)="showProperties = true"
+            (mousedown)="popupTrigger.closeMenu()"
+            (dragover)="$event.preventDefault()" (drop)="canvasDrop($event)"></canvas>
+        <input id="canvas3d-input" style="position: absolute; z-index: 1; left: 0px; top: 0px; width:100px; visibility: hidden; font-size: 14px" width="100" />
+        <mat-progress-spinner *ngIf="loadingIndicator$ | async" mode="indeterminate"></mat-progress-spinner>
+        <app-message class="designer-message pad-sm" *ngIf="error && !isProjectArchived" color="warn" label="Error" i18n-label>
+            <ng-container [ngSwitch]="error.type">
+                <span *ngSwitchCase="DesignerErrorType.Network" i18n>Network error connecting to modeling service. Try to reload the page.</span>
+                <span *ngSwitchCase="DesignerErrorType.Internal" i18n>Modeling service failed. Try again later.</span>
+                <span *ngSwitchCase="DesignerErrorType.License" i18n>License server failure. Try again later.</span>
+                <span *ngSwitchCase="DesignerErrorType.WebGL" i18n>WebGL initialization failed. Check your browser and video drivers. {{error.info}}</span>
+                <span *ngSwitchCase="DesignerErrorType.WebGLLost" i18n>WebGL context lost. Please reload the page.</span>
+                <div *ngSwitchCase="DesignerErrorType.Forbid">
+                    <span i18n class="push-right">Access forbidden.</span>
+                    <a mat-button routerLink="/projects" i18n>Explore projects</a>
+                </div>
+                <span *ngSwitchDefault i18n>Unknown error. Code: {{error.type}}</span>
+            </ng-container>
+        </app-message>
+        <app-message class="designer-message pad-sm" *ngIf="isProjectArchived" color="info">
+            <span i18n>Project was archived.</span>
+            <button mat-button (click)="restoreFromArchive()" i18n>RESTORE</button>
+        </app-message>
+        <app-navigator-3d *ngIf="fileItem" [ds]="ds"></app-navigator-3d>
+        <div class="top-right">
+            <button mat-icon-button *ngIf="hiddenEntities" class="top-button" (click)="restoreVisibility()"
+                [@pulseAnimation] matTooltip="Restore visibility" i18n-matTooltip>
+                <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button *ngIf="status && status.offers" class="top-button" (click)="showOffers()"
+                matTooltip="Show bought together items" i18n-matTooltip>
+                <mat-icon>stars</mat-icon>
+            </button>
+        </div>
+        <div style="position: fixed"
+            [style.left]="contextMenuPosition.x" [style.top]="contextMenuPosition.y"
+            [matMenuTriggerFor]="modelerMenu" #popupTrigger="matMenuTrigger">
+        </div>
+
+        <div *ngIf="ds && !ds.activeAction.mousePressed && status && this.ds.selection.pos" class="popup-container">
+            <div class="popup" [ngStyle]="popupPos()">
+                <button mat-icon-button *ngIf="status.animations" (click)="project.animateAll(ds.selected)" matTooltip="Animate" i18n-matTooltip>
+                    <mat-icon>play_arrow</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="status.paint" (click)="enablePaintMode()" matTooltip="Paint" i18n-matTooltip>
+                    <mat-icon>format_paint</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="status.addWalls" (click)="addWalls()" matTooltip="Draw wall" i18n-matTooltip>
+                    <mat-icon>create</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="status.splitWall" (click)="splitWall()" matTooltip="Split wall" i18n-matTooltip>
+                    <mat-icon>show_chart</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="status.hasAux" (click)="removeAuxLines()" matTooltip="Remove aux lines" i18n-matTooltip>
+                    <mat-icon>delete_sweep</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="status.symmetry" (click)="symmetryEntity()" matTooltip="Symmetry" i18n-matTooltip>
+                    <mat-icon>flip</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="status.swapWallSide" (click)="ds.rotateSelection(180)"
+                    matTooltip="Change wall side" i18n-matTooltip>
+                    <mat-icon>swap_vert</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="status.copy" (click)="project.copySelection()" matTooltip="Copy" i18n-matTooltip>
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="status.multipleCopy" (click)="advancedCopy()" matTooltip="Copy along direction" i18n-matTooltip>
+                    <mat-icon>playlist_add</mat-icon>
+                </button>
+                <button mat-icon-button  *ngIf="status.replace" (click)="replaceSelection()" matTooltip="Replace" i18n-matTooltip>
+                    <mat-icon>repeat</mat-icon>
+                </button>
+                <button *ngIf="status.rotate" mat-icon-button (click)="ds.rotateSelection(90)" matTooltip="Rotate left" i18n-matTooltip>
+                    <mat-icon>rotate_left</mat-icon>
+                </button>
+                <button *ngIf="status.rotate" mat-icon-button (click)="ds.rotateSelection(-90)" matTooltip="Rotate right" i18n-matTooltip>
+                    <mat-icon>rotate_right</mat-icon>
+                </button>
+                <button *ngIf="status.remove" mat-icon-button (click)="project.removeSelection()" matTooltip="Delete" i18n-matTooltip>
+                    <mat-icon>delete_forever</mat-icon>
+                </button>
+                <button mat-icon-button (click)="hideSelection()" matTooltip="Hide" i18n-matTooltip>
+                    <mat-icon>visibility_off</mat-icon>
+                </button>
+
+                <app-ui-collection [collection]="ui.popup"></app-ui-collection>
+            </div>
+        </div>
+    </div>
+    <div class="side-panel select-none" *ngIf="editable" fxLayout="column" [style.position]="'relative'" fxHide.lt-sm (mousedown)="popupTrigger.closeMenu()">
+        <mat-button-toggle-group #sidePanel="matButtonToggleGroup" fxFlex='none' [value]="0">
+            <mat-button-toggle [value]="0" (mouseup)="modelExplorerActivate(sidePanel.value)">
+                <mat-icon>weekend</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle [value]="1">
+                <mat-icon>palette</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle *ngIf="!rootId" [value]="2">
+                <mat-icon>wb_sunny</mat-icon>
+            </mat-button-toggle>
+            <mat-button-toggle *ngIf="!rootId" [value]="3">
+                <mat-icon>list</mat-icon>
+            </mat-button-toggle>
+        </mat-button-toggle-group>
+        <div fxLayout='column' class="full-height">
+            <app-model-explorer [class.hidden]="sidePanel.value !== 0" (modelDrag)="modelDrag($event)"
+                class="full-height" [recentFolders]="recentFolders"></app-model-explorer>
+            <app-light-editor [class.hidden]="sidePanel.value !== 2" class="full-height" [ds]="ds"></app-light-editor>
+            <app-project-tree [class.hidden]="sidePanel.value !== 3" class="full-height" [ds]="ds"></app-project-tree>
+            <app-material-explorer [class.hidden]="sidePanel.value !== 1"  (materialDrag)="materialDrag($event)"
+                class="full-height"></app-material-explorer>
+        </div>
+        <app-property-editor *ngIf="showProperties && hasSelection && !isDragDrop" [handler]="project" [rootId]="rootId"
+            (close)="showProperties = false" [@propertyPanelAnimation]></app-property-editor>
+        <app-cover-tool *ngIf="paintMode" (close)="paintMode = false"></app-cover-tool>
+        <app-offer-tool *ngIf="offers" [offers]="offers" (modelDrag)="modelDrag($event)"
+            (close)="offers = undefined"></app-offer-tool>
+    </div>
+</div>
+
+<ng-template #compressResultTemplate>
+    <span i18n>Model compressed from {{compressResult.oldSize | bytes}} to {{compressResult.newSize | bytes}}</span>
+</ng-template>

@@ -1,0 +1,28 @@
+@media (min-width: 640px) {
+    mat-dialog-content {
+      min-width: 640px;
+    }
+}
+
+@media (max-width: 599px) {
+    mat-dialog-content {
+        min-width: 250px;
+    }
+}
+
+:host {
+    min-height: 540px;
+    width: 60vw;
+    display: flex;
+    flex-direction: column;
+}
+
+mat-dialog-content {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+mat-vertical-stepper {
+    overflow: auto;
+}

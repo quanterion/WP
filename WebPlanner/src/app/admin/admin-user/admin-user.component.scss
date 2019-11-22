@@ -1,0 +1,23 @@
+div.user-fields > div {
+    align-items: center;
+    padding-bottom: 8px;
+}
+
+mat-row {
+    cursor: pointer;
+}
+
+mat-cell.disabled {
+    color: gray;
+}
+
+::ng-deep mat-form-field.search {
+    .mat-form-field-underline {
+        display: none;
+    }
+}
+
+button.role-remove {
+    position: absolute;
+    right: 4px;
+}

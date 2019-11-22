@@ -1,0 +1,11 @@
+<ng-container *ngIf="value">
+  <span class="flex-auto">
+    <span *ngIf="!value.complete">{{value.message}}</span>
+  </span>
+  <app-message *ngIf="value.error" class="error" color="warn" icon="error">{{value.error}}</app-message>
+  <ng-content *ngIf="value.complete && !value.error" select="[job-success]"></ng-content>
+  <ng-content *ngIf="value.complete"></ng-content>
+  <button *ngIf="!value.complete" mat-raised-button color="warn" (click)="stop(value.id)" [disabled]="stopping" i18n>STOP</button>
+  <mat-progress-bar *ngIf="!value.complete" class="push-top-sm"
+    [mode]="value.progress ? 'determinate' : 'indeterminate'" [value]="value.progress || 0"></mat-progress-bar>
+</ng-container>

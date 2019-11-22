@@ -1,0 +1,39 @@
+<mat-card class="explorer" fxLayout="column">
+  <mat-toolbar *ngIf="canBack">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon class="md-24">reply</mat-icon>
+    </button>
+    <span>{{group?.name}}</span>
+  </mat-toolbar>
+
+  <mat-nav-list *ngIf="!groupMode" class="overflow-auto" fxFlex>
+    <ng-container *wpWait="catalogs$ as catalogs">
+      <mat-list-item *ngFor="let c of catalogs.my; trackBy: itemTrackBy" (click)="selectCatalog(c)">
+        <img matListAvatar class="push catalog-image" [src]="c | preview">
+        <span class="catalog-name">{{c.name}}</span>
+      </mat-list-item>
+      <mat-list-item *ngFor="let c of catalogs.all; trackBy: itemTrackBy" (click)="selectCatalog(c)">
+        <img matListAvatar class="push catalog-image" [src]="c | preview">
+        <span class="catalog-name">{{c.name}}</span>
+      </mat-list-item>
+    </ng-container>
+  </mat-nav-list>
+
+  <div class="file-list" *ngIf="groupMode">
+    <ng-container *ngIf="group; else loading">
+      <div *ngFor="let m of group.materials; trackBy: itemTrackBy"
+        [draggable]="!m.type" class="file-item" [class.group]="m.type"
+        (click)="materialClick(m)" (dragstart)="dragStart($event, m)" (mouseup)="itemMouseUp($event, m)">
+        <div class="image-container">
+          <img class="material-image" [src]="m | thumbnail">
+        </div>
+        <div class="item-name">{{m.name}}</div>
+      </div>
+      <div *ngIf="!group.materials.length" class="noitems" i18n>No items</div>
+    </ng-container>
+  </div>
+</mat-card>
+
+<ng-template #loading>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

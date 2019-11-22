@@ -1,0 +1,45 @@
+table {
+    width: 100%;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+mat-form-field[appearance="outline"], mat-form-field.editable {
+    margin-bottom: -1.3em;
+}
+
+mat-expansion-panel-header {
+    background-color: rgb(245, 245, 245);
+    min-height: 48px;
+}
+
+td.noparams {
+    padding: 16px;
+}
+
+div.icon {
+    margin-bottom: -16px;
+
+    img {
+        display: block;
+        margin: auto;
+    }
+}
+
+span.property-badge {
+    background-color: #3f51b5;
+    color: white;
+    border-radius: 50%;
+    margin-left: 8px;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+    overflow: hidden;
+}
+
+td.mat-cell {
+    padding-left: 0px;
+    padding-right: 0px;
+}

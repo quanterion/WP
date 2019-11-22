@@ -1,0 +1,47 @@
+<mat-toolbar>
+  <button mat-icon-button (click)="levelUp()" [disabled]="!folderId">
+      <mat-icon class="md-24">reply</mat-icon>
+  </button>
+  <span>{{currentName}}</span>
+</mat-toolbar>
+
+<mat-dialog-content fxFlex>
+  <mat-list *ngIf="!folderId" class='overflow-auto'>
+    <mat-list-item *ngFor="let c of catalogs"
+      (click)="selectCatalog(c)" (dblclick)="openCatalog(c)"
+      [class.selected]="c === selectedCatalog" class="selectable">
+      <mat-icon>view_list</mat-icon>
+      <span fxFlex class="catalog-name">{{c.name}}</span>
+      <button mat-button (click)="openCatalog(c)">
+          <mat-icon class="md-24">keyboard_arrow_right</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-list>
+
+  <mat-list *ngIf="folderId" class='overflow-auto'>
+    <mat-list-item *ngFor="let f of files | async"
+      (click)="selectFolder(f)" (dblclick)="openFolder(f)"
+      [class.selectable]="canSelectFile(f)"  [class.selected]="f.id === selectedFolderId">
+      <mat-icon *ngIf="f.folder">folder</mat-icon>
+      <mat-icon *ngIf="!f.folder">insert_drive_file</mat-icon>
+      <span fxFlex>{{f.name}}</span>
+      <button mat-button (click)="openFolder(f)" *ngIf="canSelectFile(f)">
+          <mat-icon class="md-24">keyboard_arrow_right</mat-icon>
+      </button>
+    </mat-list-item>
+    <div class="empty-info" i18n>This folder is empty</div>
+  </mat-list>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-raised-button color="primary" [disabled]="!(selectedCatalog || selectedFolderId || folderId)"
+          (click)="moveClick()">
+    <span *ngIf="selectedFolderId || selectedCatalog" i18n>MOVE</span>
+    <span *ngIf="!selectedFolderId && !selectedCatalog" i18n>MOVE HERE</span>
+  </button>
+  <span fxFlex></span>
+  <button mat-icon-button (click)="createNewFolder()" *ngIf="folderId"
+    matTooltip="Add folder" i18n-matTooltip matTooltipPosition="above">
+      <mat-icon class="md-24">note_add</mat-icon>
+  </button>
+</mat-dialog-actions>`

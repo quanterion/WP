@@ -1,0 +1,34 @@
+:host {
+    flex: auto;
+    display: flex;
+    min-width: 60vw;
+}
+
+.catalog {
+    background-color: white;
+}
+
+div.options {
+    position: absolute;
+    right: 0px;
+}
+
+.rename-button {
+    vertical-align: middle;
+}
+
+img.catalog-image {
+    max-height: 48px;
+}
+
+img, span {
+    .drop-zone {
+        border: 2px dotted whitesmoke;
+        background-color: red;
+        opacity: 0.5;
+    }
+}
+
+mat-icon.hidden {
+    visibility: hidden;
+}

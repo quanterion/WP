@@ -1,0 +1,76 @@
+<table flex class="mat-table" *ngIf="materials">
+  <tr class="mat-header-row">
+    <th class="mat-header-cell">
+      <mat-icon>class</mat-icon>
+      <span i18n>Material</span>
+    </th>
+    <th class="mat-header-cell">
+      <mat-icon>class</mat-icon>
+      <span i18n>Value</span>
+    </th>
+  </tr>
+  <tr class="mat-row">
+    <td class="mat-cell" i18n>Walls</td>
+    <td class="mat-cell">
+      <button *ngIf="materials.wall" mat-button (click)="chooseWallMaterial()">
+        <img [src]="materials.wall | thumbnail" class="material-thumbnail" >
+        <span>{{materials.wall.name}}</span>
+      </button>
+      <button *ngIf="!materials.wall" mat-raised-button (click)="chooseWallMaterial()"
+        color="primary" i18n>Choose material</button>
+    </td>
+  </tr>
+  <tr class="mat-row">
+    <td class="mat-cell" i18n>Floor</td>
+    <td class="mat-cell">
+      <button *ngIf="materials.floor" mat-button (click)="chooseFloorMaterial()">
+        <img [src]="materials.floor | thumbnail" class="material-thumbnail" >
+        <span>{{materials.floor.name}}</span>
+      </button>
+      <button *ngIf="!materials.floor" mat-raised-button (click)="chooseFloorMaterial()"
+        color="primary" i18n>Choose material</button>
+    </td>
+  </tr>
+  <tr class="mat-row">
+    <td class="mat-cell" i18n>Ceiling</td>
+    <td class="mat-cell">
+      <button *ngIf="materials.ceiling" mat-button (click)="chooseCeilingMaterial()">
+        <img [src]="materials.ceiling | thumbnail" class="material-thumbnail" >
+        <span>{{materials.ceiling.name}}</span>
+      </button>
+      <button *ngIf="!materials.ceiling" mat-raised-button (click)="chooseCeilingMaterial()"
+        color="primary" i18n>Choose material</button>
+    </td>
+  </tr>
+  <tr class="mat-row">
+    <td class="mat-cell" i18n>Roof</td>
+    <td class="mat-cell">
+      <button *ngIf="materials.roof" mat-button (click)="chooseRoofMaterial()">
+        <img [src]="materials.roof | thumbnail" class="material-thumbnail" >
+        <span>{{materials.ceiling.name}}</span>
+      </button>
+      <button *ngIf="!materials.roof" mat-raised-button (click)="chooseRoofMaterial()"
+        color="primary" i18n>Choose material</button>
+    </td>
+  </tr>
+  <tr class="mat-row">
+    <td class="mat-cell" i18n>Head light</td>
+    <td class="mat-cell">
+      <mat-slider min="5" max="200" thumbLabel [(ngModel)]="materials.headLightPower" (change)="save()">
+    </mat-slider>
+    </td>
+  </tr>
+  <tr class="mat-row">
+    <td class="mat-cell" i18n>Light</td>
+    <td class="mat-cell">
+      <span *ngIf="materials.light" class="push">{{materials.light.name}}</span>
+      <button mat-raised-button color="primary" (click)="chooseLight()">
+        <mat-icon>wb_sunny</mat-icon>
+        <span i18n>CHANGE</span>
+      </button>
+      <button mat-icon-button (click)="removeLight()">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </td>
+  </tr>
+</table>

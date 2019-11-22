@@ -1,0 +1,54 @@
+<div class="explorer" fxLayout="column">
+
+  <mat-nav-list *ngIf="!folder$" class='overflow-auto' fxFlex>
+    <ng-container *ngIf="catalogs$ | async; let catalogs">
+      <mat-list-item *ngFor="let c of catalogs.my" (click)="selectCatalog(c)">
+        <img matListAvatar class="push catalog-image" [src]="c | preview">
+        <span class="catalog-name">{{c.name}}</span>
+        <mat-icon>keyboard_arrow_right</mat-icon>
+      </mat-list-item>
+      <mat-divider *ngIf="catalogs.my.length"></mat-divider>
+      <mat-list-item *ngFor="let c of catalogs.all" (click)="selectCatalog(c)">
+        <img matListAvatar class="push catalog-image" [src]="c | preview">
+        <span class="catalog-name">{{c.name}}</span>
+        <mat-icon>keyboard_arrow_right</mat-icon>
+      </mat-list-item>
+    </ng-container>
+  </mat-nav-list>
+
+  <ng-container *ngIf="folder$ | async; let folder">
+    <div *ngIf="folder.catalogId" fxLayout="row" fxLayoutAlign="start center" class="push-sm">
+      <button mat-button (click)="back()">
+        <mat-icon>reply</mat-icon>
+        <span>{{folder.name}}</span>
+      </button>
+      <span fxFlex></span>
+      <button *ngIf="recentFolders && recentFolders.length" mat-icon-button [matMenuTriggerFor]="recentMenu" matTooltip="Recent folders" i18n-matTooltip>
+        <mat-icon>access_time</mat-icon>
+      </button>
+    </div>
+
+    <div class="file-list" fxFlex>
+      <ng-container *ngIf="folder.folder">
+        <div *ngFor="let f of folder.files; trackBy: fileTrackBy"
+          [draggable]="!f.folder" class="file-item" [class.folder]="f.folder" [class.selected]="f.id === activeFileId"
+          (click)="fileClick(f, folder)" (dragstart)="dragDropModel(f, folder)" (mouseup)="fileMouseUp($event, f)">
+          <div class="image-container">
+            <img class="model-image" [src]="f | preview">
+          </div>
+          <div class="mat-body-1 item-name">{{f.name}}</div>
+          <mat-icon *ngIf="f.folder">keyboard_arrow_right</mat-icon>
+          <span class="price" *ngIf="f.price">{{f.price}} Р</span>
+        </div>
+        <div *ngIf="!folder.files.length" class="pad" i18n>No items on sale</div>
+      </ng-container>
+      <mat-progress-bar *ngIf="!folder.folder" mode="indeterminate"></mat-progress-bar>
+    </div>
+  </ng-container>
+</div>
+
+<mat-menu #recentMenu="matMenu">
+  <ng-template matMenuContent>
+    <button *ngFor="let folder of recentFolders" mat-menu-item (click)="selectFolder(folder.id)">{{folder.name}}</button>
+  </ng-template>
+</mat-menu>

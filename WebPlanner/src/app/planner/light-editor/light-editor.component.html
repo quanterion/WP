@@ -1,0 +1,87 @@
+<mat-card *ngIf="!selectedOnly">
+  <div class="pad-sm"></div>
+  <div fxLayout="row">
+      <mat-icon svgIcon="sun" class="push-left-sm"></mat-icon>
+      <span fxFlex class="mat-subheading-2" i18n>Sun light</span>
+  </div>
+  <table class="push-left">
+    <tbody>
+      <tr>
+        <td i18n>Luminance</td>
+        <td>
+          <mat-slider min="1" max="100" thumbLabel [(ngModel)]="sun.luminance" (change)="sunLightChanged()" (input)="sunLuminanceInput($event)">
+          </mat-slider>
+        </td>
+      </tr>
+      <tr>
+        <td i18n>Elevation</td>
+        <td>
+          <mat-slider min="5" max="90" thumbLabel [(ngModel)]="sun.elevation" (change)="sunLightChanged()" (input)="sunElevationInput($event)">
+          </mat-slider>
+        </td>
+      </tr>
+      <tr>
+        <td i18n>Azimuth</td>
+        <td>
+          <mat-slider min="1" max="360" thumbLabel [(ngModel)]="sun.azimuth" (change)="sunLightChanged()" (input)="sunAzimuthInput($event)">
+          </mat-slider>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</mat-card>
+<mat-card *ngIf="!selectedOnly">
+  <div class="pad-sm"></div>
+  <mat-checkbox #headEnabled class="push" [(ngModel)]="headLight.enabled" (change)="headLightChanged()" i18n>
+    Enable head light
+  </mat-checkbox>
+  <table class="push-left">
+    <tbody>
+      <tr>
+        <td i18n>Power</td>
+        <td>
+          <mat-slider #headPower min="5" max="200" thumbLabel [(ngModel)]="headLight.power" (change)="headLightChanged()" (input)="headLightChanging($event)">
+          </mat-slider>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</mat-card>
+<mat-card *ngFor="let light of lights; trackBy: lightTrackBy">
+  <div class="pad-sm"></div>
+  <div fxLayout="row">
+    <mat-icon svgIcon="lamp" class="push-left-sm"></mat-icon>
+    <span fxFlex class="mat-subheading-2">{{light.name}}</span>
+    <button mat-icon-button (click)="removeLight(light)">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+  <table class="push-left pad-bottom-sm">
+    <tbody>
+      <tr>
+        <td i18n>Power</td>
+        <td>
+          <mat-slider min="5" max="200" thumbLabel [(ngModel)]="light.power" (change)="paramChanged(light)" (input)="paramChanged(light, $event.value)"></mat-slider>
+        </td>
+      </tr>
+      <tr>
+        <td i18n>Distance</td>
+        <td>
+          <mat-slider min="1000" max="5000" thumbLabel [(ngModel)]="light.distance" (change)="paramChanged(light)" (input)="paramChanged(light, undefined, $event.value)"></mat-slider>
+        </td>
+      </tr>
+      <tr>
+        <td i18n>Shadows</td>
+        <td>
+          <mat-checkbox [(ngModel)]="light.shadows" (change)="paramChanged(light)" class="push"></mat-checkbox>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</mat-card>
+<div *ngIf="manage && !lights.length && !hasSelection" class="pad" i18n>There are no lamps in scene. Select object to create a lamp</div>
+<div *ngIf="manage && selected && !lights.length" fxLayout="row">
+  <span fxFlex></span>
+  <button class="create" (click)="createLight(selected)" mat-button color="primary"
+    class="push" i18n>CREATE LIGHT</button>
+</div>

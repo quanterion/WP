@@ -1,0 +1,14 @@
+<app-header fxLayoutAlign="start start"></app-header>
+<div fxLayout="column" *ngIf="(auth.isAuthenticated | async) === true">
+    <a fxFlexOffset="50px" fxFlexAlign="center" class="attract" mat-stroked-button routerLink="/files" i18n>FILES</a>
+</div>
+<div *ngIf="files$ | async; let files" fxLayout="column">
+    <div fxFlex>
+        <a *ngFor="let file of files" class="cell" (click)="openModel(file.id)">
+            <img [src]="file | preview">
+            <span class="file-name">{{file.name}}</span>
+        </a>
+    </div>
+    <button *ngIf="files.length >= 10" fxFlexOffset="50px" fxFlexAlign="center" class="conf-button size-width-100 size-height-30 push-xxl"
+        mat-button (click)="moreFiles()" i18n>MORE</button>
+</div>

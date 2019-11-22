@@ -1,0 +1,148 @@
+<div fxLayout="row" class="pad-xs">
+    <mat-form-field>
+        <input matInput placeholder="Property name" i18n-placeholder #name="ngModel" [(ngModel)]="modelProperty.name" required>
+        <ng-container *ngIf="name.invalid && (name.dirty || name.touched)">
+            <mat-error *ngIf="name.errors && name.errors['required']" class="push-top" i18n>Enter property name</mat-error>
+        </ng-container>
+    </mat-form-field>
+    <mat-form-field class="push-left description">
+        <input matInput placeholder="Property description" i18n-placeholder #name="ngModel" [(ngModel)]="modelProperty.description">
+    </mat-form-field>
+    <span class="flex-auto"></span>
+    <button mat-button color="accent" [matMenuTriggerFor]="addParamMenu">
+      <mat-icon class="md-24">add</mat-icon>
+      <span i18n>ADD PARAMETER</span>
+    </button>
+    <mat-menu #addParamMenu="matMenu" overlapTrigger="false">
+        <button mat-menu-item (click)="addParameter(ParameterType.Material)" i18n>Material</button>
+        <button mat-menu-item (click)="addParameter(ParameterType.SKU)" i18n>SKU</button>
+        <button mat-menu-item (click)="addParameter(ParameterType.Price)" i18n>Price</button>
+        <hr>
+        <button mat-menu-item (click)="addParameter(ParameterType.Width)" [disabled]="sizeInfo && !sizeInfo.xe" i18n>Width</button>
+        <button mat-menu-item (click)="addParameter(ParameterType.Height)" [disabled]="sizeInfo && !sizeInfo.ye" i18n>Height</button>
+        <button mat-menu-item (click)="addParameter(ParameterType.Depth)" [disabled]="sizeInfo && !sizeInfo.ze" i18n>Depth</button>
+        <hr>
+        <button mat-menu-item [disabled]="!parametricList || !parametricList.length" [matMenuTriggerFor]="parametricMenu" i18n>Parametric</button>
+        <hr>
+        <button mat-menu-item (click)="addParameter(ParameterType.Position)" [disabled]="!sizeInfo?.position" i18n>Position</button>
+    </mat-menu>
+
+    <mat-menu #parametricMenu="matMenu" overlapTrigger="false">
+        <button *ngFor="let param of parametricList" mat-menu-item (click)="addParameter(ParameterType.Parameter, param.name, param.size)">{{param.name}}</button>
+    </mat-menu>
+    <button *ngIf="closable" class="close-button md-24" mat-icon-button (click)="cancel()">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div fxFlex></div>
+</div>
+<table cdkDropList (cdkDropListDropped)="variantDropped($event, modelProperty.variants)" class="mat-table pad-xs">
+    <tr class="mat-header-row">
+        <th class="mat-header-cell">
+            <mat-icon>class</mat-icon>
+            <span i18n>Variant name</span>
+        </th>
+        <th class="mat-header-cell" *ngFor="let param of paramList; let i = index;">
+            <span>
+            <ng-container [ngSwitch]="param.type">
+              <span *ngSwitchCase="ParameterType.Material">
+                <button *ngSwitchCase="ParameterType.Material" mat-button
+                  (click)="chooseParamMaterial(param)" (contextmenu)="paramContextMenu($event, param, param.value)"
+                  tdFileDrop (fileDrop)="uploadTexture(param.value, $event)" class="drop-target">
+                  <img [src]="findMaterial(param.value) | thumbnail" class="material-thumbnail"> {{param.value}}
+                </button>
+              </span>
+            <span *ngSwitchCase="ParameterType.SKU">
+                <mat-icon>store</mat-icon>
+                <span i18n>SKU</span>
+            </span>
+            <span *ngSwitchCase="ParameterType.Price">
+                <mat-icon>euro_symbol</mat-icon>
+                <span i18n>Price</span>
+            </span>
+            <span *ngSwitchCase="ParameterType.Width">
+                <mat-icon>format_size</mat-icon>
+                <span i18n>Width</span>
+            </span>
+            <span *ngSwitchCase="ParameterType.Height">
+                <mat-icon>format_size</mat-icon>
+                <span i18n>Height</span>
+            </span>
+            <span *ngSwitchCase="ParameterType.Depth">
+                <mat-icon>format_size</mat-icon>
+                <span i18n>Depth</span>
+            </span>
+            <span *ngSwitchCase="ParameterType.Parameter">
+                <mat-icon>format_size</mat-icon>
+                <span i18n>{{param.value}}</span>
+            </span>
+            </ng-container>
+            </span>
+            <button mat-icon-button (click)="removeParameter(i)" matTooltip="Remove parameter" i18n-matTooltip matTooltipPosition="above">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </th>
+        <th class="mat-header-cell fit">
+        </th>
+    </tr>
+    <tr cdkDrag class="mat-row" *ngFor="let variant of modelProperty.variants; let i = index;" [class.disabled]="variant.disabled">
+        <td class="mat-cell" class="flex-row">
+            <mat-checkbox class="push-sm" [checked]="!variant.disabled" (change)="variant.disabled = !$event.checked"></mat-checkbox>
+            <mat-form-field class="flex-auto">
+                <input matInput [(ngModel)]="variant.name">
+            </mat-form-field>
+        </td>
+        <td class="mat-cell" *ngFor="let param of modelProperty.params; let paramIndex = index">
+            <div [ngSwitch]="param.type" class="push-left push-right">
+                <button *ngSwitchCase="ParameterType.Material" mat-button (click)="chooseVariantMaterial(variant, paramIndex)"
+                    (contextmenu)="paramContextMenu($event, param, variant.values[paramIndex])" tdFileDrop
+                    (fileDrop)="uploadTexture(variant.values[paramIndex], $event)" class="drop-target">
+                    <img [src]="findMaterial(variant.values[paramIndex]) | thumbnail" class="material-thumbnail">
+                    <span>{{variant.values[paramIndex]}}</span>
+                </button>
+                <mat-form-field *ngSwitchCase="ParameterType.Position">
+                    <mat-select [(value)]="variant.values[paramIndex]">
+                        <mat-option [value]="0" i18n>None</mat-option>
+                        <mat-optgroup label="Align" i18n-label>
+                            <mat-option [value]="1" i18n>Fill</mat-option>
+                            <mat-option [value]="2" i18n>Left</mat-option>
+                            <mat-option [value]="3" i18n>Right</mat-option>
+                            <mat-option [value]="4" i18n>Bottom</mat-option>
+                            <mat-option [value]="5" i18n>Top</mat-option>
+                            <mat-option [value]="6" i18n>Back</mat-option>
+                            <mat-option [value]="7" i18n>Front</mat-option>
+                            <mat-option [value]="14" i18n>Left/Right</mat-option>
+                            <mat-option [value]="15" i18n>Bottom/Top</mat-option>
+                        </mat-optgroup>
+                        <mat-optgroup label="Position" i18n-label>
+                            <mat-option [value]="8" i18n>Vertical</mat-option>
+                            <mat-option [value]="9" i18n>Horizontal</mat-option>
+                        </mat-optgroup>
+                        <mat-optgroup label="Split" i18n-label>
+                            <mat-option [value]="11" i18n>Vertically</mat-option>
+                            <mat-option [value]="12" i18n>Horizontally</mat-option>
+                        </mat-optgroup>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field *ngSwitchDefault class="fit-width">
+                    <input matInput [(ngModel)]="variant.values[paramIndex]">
+                </mat-form-field>
+            </div>
+        </td>
+        <td class="mat-cell fit">
+            <button mat-icon-button matTooltip="Remove variant" i18n-matTooltip (click)="removeVariant(i)">
+        <mat-icon>delete</mat-icon>
+      </button>
+        </td>
+    </tr>
+</table>
+<div fxLayout="row" class="pad-xs">
+    <button mat-button color="accent" (click)="addVariant()">
+    <mat-icon class="md-24">add</mat-icon>
+    <span i18n>ADD VARIANT</span>
+  </button>
+    <div fxFlex></div>
+    <button *ngIf="modelProperty.id" mat-raised-button color="primary" (click)="saveChanges()" class="text-right" i18n>SAVE
+    CHANGES</button>
+    <button *ngIf="!modelProperty.id" mat-raised-button color="primary" (click)="saveChanges()" class="text-right" i18n>CREATE</button>
+    <button *ngIf="!closable" mat-raised-button (click)="cancel()" class="text-right push-left" i18n>CANCEL</button>
+</div>

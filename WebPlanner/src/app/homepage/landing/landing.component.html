@@ -1,0 +1,27 @@
+<section class="bgc-blue-grey-50">
+  <div layout-gt-xs="row">
+    <div flex class="pad" fxShow.gt-xs class="pad-xl">
+      <div class="push-top-xl" fxHide.xs></div>
+      <div fxShow.gt-sm class="push-lg">
+        <h1 class="md-display-1 tc-blue-grey-900 push-top-xs push-bottom-sm slogan" i18n>Online 3D interior designer</h1>
+        <h2 class="md-headline tc-grey-800 push-top-xs push-bottom-sm" i18n>Complete solution to create floorplans, furniture layouts, interior visualization, and calculate renovation costs</h2>
+        <p class="md-subhead tc-grey-600" i18n>Out goal is to create the best online 3D office and home design service. WebPlanner is about modelling, visualizing, and computing renovation costs of offices and homes. It can be integrated with your internet shop and provide 3D modeling services for your customers.</p>
+        <button mat-raised-button color="accent" class="push-bottom push-right mat-button-lg text-upper" (click)="getStarted()" i18n>Get started</button>
+      </div>
+      <div class="push-bottom-xl" hide-xs></div>
+    </div>
+    <div fxFlex="40" fxLayout="row" layout-align="center center">
+      <img fxHide.xs class="pad-xl" src="./assets/img/homepage/plan.svg" alt="Logo" />
+    </div>
+  </div>
+</section>
+
+<section class="announcement" *ngIf="auth.wigwam">
+  <p>
+    <span i18n>WebPlanner launches Beta version! Read more</span>
+    <span>&nbsp;</span>
+    <a href="https://docs.google.com/document/d/1p3wGXtDH9mzDgPK1svJYc-37gogp3fGnpa4r4DrYhoI/edit?usp=sharing" target="_blank" i18n>here</a></p>
+  <div>
+    <button mat-raised-button color="primary" class="push-bottom mat-button-lg text-upper" (click)="subscribe()" i18n>REQUEST EVALUATION</button>
+  </div>
+</section>

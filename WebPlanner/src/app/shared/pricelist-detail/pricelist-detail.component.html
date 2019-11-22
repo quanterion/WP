@@ -1,0 +1,53 @@
+<div mat-dialog-title *ngIf="price" fxLayout="row" fxLayoutAlign="start baseline">
+    <mat-form-field class="push-right">
+        <input matInput placeholder="Pricelist name" i18n-placeholder [(ngModel)]="price.name" (input)="priceChanged()">
+    </mat-form-field>
+    <app-search-box fxFlex placeholder="Search for SKU and price" i18n-placeholder [debounce]="500" (searchDebounce)="applyFilter($event)"
+        (clear)="clearSearch()">
+    </app-search-box>
+</div>
+<mat-dialog-content fxLayout="column">
+    <ng-container *ngIf="loading">
+        <div class="push" i18n>Loading price list...</div>
+        <mat-progress-bar mode="indeterminate" [style.width.%]="100"></mat-progress-bar>
+    </ng-container>
+    <div class="table" [class.hidden]="loading" fxFlex fxLayout="column">
+        <table mat-table [dataSource]="tableData" matSort #sortForDataSource="matSort" fxFlex>
+            <ng-container matColumnDef="sku">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header i18n>SKU</th>
+                <td mat-cell *matCellDef="let p">{{p.sku}}</td>
+            </ng-container>
+            <ng-container matColumnDef="price">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header i18n>Price</th>
+                <td mat-cell *matCellDef="let p">{{p.price}}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions *ngIf="price && editable">
+    <mat-form-field placeholder="Sharing" i18n-placeholder>
+        <mat-select i18n-matTooltip [(ngModel)]="price.shared" (selectionChange)="priceChanged()">
+            <mat-option value="!" i18n>None</mat-option>
+            <mat-option value="*" i18n>All</mat-option>
+            <mat-optgroup label="Roles" i18n-label>
+                <mat-option *ngFor="let role of roles$ | async" [value]="role.name">{{role.name}}</mat-option>
+            </mat-optgroup>
+        </mat-select>
+    </mat-form-field>
+    <span fxFlex></span>
+    <td-file-upload accept=".xml,.csv,.txt" defaultColor="accent" class="push-right"
+        matTooltip="Upload price list" i18n-matTooltip
+        matTooltipPosition="above" activeColor="primary" cancelColor="primary" (select)="uploadPriceList($event)">
+        <mat-icon>file_upload</mat-icon>
+        <ng-template td-file-input-label>
+            <mat-icon>attach_file</mat-icon>
+            <span i18n>UPLOAD</span>
+        </ng-template>
+    </td-file-upload>
+    <button mat-raised-button (click)="savePrice()" color="primary" [disabled]="!changed || empty() || !price.name">
+        <mat-icon>link</mat-icon>
+        <span i18n>SAVE</span>
+    </button>
+</mat-dialog-actions>

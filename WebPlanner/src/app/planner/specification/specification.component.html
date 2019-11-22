@@ -1,0 +1,70 @@
+<h1 mat-dialog-title i18n>Specification</h1>
+<div mat-dialog-content>
+  <table mat-table [dataSource]="dataSource" matSort>
+
+    <ng-container matColumnDef="sku">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header i18n> SKU </th>
+      <td mat-cell *matCellDef="let item"> {{item.sku}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header i18n> Name </th>
+      <td mat-cell *matCellDef="let item">
+        <span *ngIf="item.index" class="push-left">{{item.index}}.</span>
+        <span>{{item.name}}</span>
+        <div *ngIf="item.description" class="mat-caption">{{item.description}}</div>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="price">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header i18n> Price </th>
+      <td mat-cell *matCellDef="let item"> {{item.fullPrice || ''}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="count">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header i18n> Quantity </th>
+      <td mat-cell *matCellDef="let item">
+        <span class="push-right-xs">{{item.count}}</span>
+        <span *ngIf="item.unit === unit.Meters">m</span>
+        <span *ngIf="item.unit === unit.SquareMeters">m<sup>2</sup></span>
+        <span *ngIf="item.unit === unit.CubicMeters">m<sup>3</sup></span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="cost">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header i18n>Cost</th>
+      <td mat-cell *matCellDef="let item">
+        <span *ngIf="item.cost > 0; else outOfStock">{{item.cost}} </span>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let model; columns: displayedColumns;" [class.section]="model.elements.length"></tr>
+  </table>
+</div>
+
+<ng-template #outOfStock>
+  <div class="push" i18n>Out of stock</div>
+</ng-template>
+
+<h3 class="mat-h3 text-right push"><span i18n>Total price:</span> {{data.estimate.price}}</h3>
+
+<div mat-dialog-actions>
+  <span class="flex-auto"></span>
+  <ng-container *ngIf="!orderConfirmation">
+    <ng-container *ngIf="xmlTemplates$ | async; let templates">
+      <button *ngIf="!embed" mat-raised-button color="accent"
+        [matMenuTriggerFor]="templateMenu"
+        (click)="makeOrder(templates.length === 1 && templates[0])" i18n>EXPORT TO XML</button>
+      <mat-menu #templateMenu="matMenu">
+        <button *ngFor="let template of templates" mat-menu-item (click)="makeOrder(template)">{{template.name}}</button>
+      </mat-menu>
+    </ng-container>
+    <button mat-raised-button color="accent" class="order" (click)="orderConfirmation = true" i18n>ORDER</button>
+  </ng-container>
+  <ng-container *ngIf="orderConfirmation">
+    <span class="order-message" i18n>Are you sure to submit the order?</span>
+    <button mat-raised-button color="primary" [matDialogClose]="false" i18n>CANCEL</button>
+    <button mat-raised-button color="accent" class="order-confirm" [matDialogClose]="'order'" (click)="sendOrder()" i18n>YES, SUBMIT ORDER</button>
+  </ng-container>
+</div>

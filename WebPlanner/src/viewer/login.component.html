@@ -1,0 +1,36 @@
+<app-header></app-header>
+<div class="logo push">
+  <img src="./misc/logo.png">
+  <h2 class="mat-h2 pad-top" i18n>Login into WebViewer</h2>
+</div>
+<div class="main" fxLayout="column" fxLayoutAlign="start strecth">
+  <form fxLayout="column" autocomplete="on" class="email">
+    <div fxLayout="row">
+      <mat-form-field fxFlex>
+        <input matInput i18n-placeholder name="email" type="email" autocomplete="on" placeholder="Enter email" [formControl]="email">
+        <mat-error *ngIf="email.errors" i18n>Email is not valid</mat-error>
+        <mat-error *ngIf="email.errors && email.errors.serverError"
+          i18n>Failed to send email. Try to use another address</mat-error>
+      </mat-form-field>
+      <button *ngIf="email.disabled && !authInProgress" mat-icon-button color="primary" (click)="changeEmail()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+    <button mat-raised-button *ngIf="email.enabled" type="submit" color="primary" (click)="login()" i18n>GO</button>
+  </form>
+  <mat-progress-bar *ngIf="authInProgress" class="push" mode="indeterminate"></mat-progress-bar>
+
+  <form fxLayout="column" *ngIf="token.enabled" class="token">
+    <p i18n>Well done! We sent link and key to your email. Follow the link or enter the key here.</p>
+
+    <mat-form-field class="full-width">
+      <input matInput i18n-placeholder placeholder="Enter access key" [formControl]="token" fxLayoutAlign="center center">
+      <mat-error *ngIf="token.errors" i18n>You have entered invalid key</mat-error>
+    </mat-form-field>
+    <div class="push-top"></div>
+    <button mat-raised-button color="primary" type="submit" [disabled]="loginInProgress" (click)="loginWithToken(email.value, token.value)"
+      i18n>LOGIN</button>
+    <mat-progress-bar *ngIf="loginInProgress" class="push" mode="indeterminate"></mat-progress-bar>
+    <span *ngIf="testToken" class="testtoken">{{testToken}}</span>
+  </form>
+</div>

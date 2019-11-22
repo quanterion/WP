@@ -1,0 +1,90 @@
+version: '2.1'
+
+services:
+
+  nginx-e2e:
+    image: "remkolomna/webplanner:nginx"
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    volumes:
+      - dockerdata:/var/opt/fm
+    depends_on:
+      - "builder-e2e"
+    networks:
+      - app-network-e2e
+
+  postgres-e2e:
+    image: postgres:10.1
+    environment:
+      POSTGRES_PASSWORD: gfhjkm
+      PGDATA: '/var/lib/postgresql/tempdata'
+    networks:
+      - app-network-e2e
+
+  builder-e2e:
+    image: "remkolomna/webplanner:builder-${COMPOSE_PROJECT_NAME}"
+    build:
+      context: ../../Builder
+      dockerfile: Dockerfile
+    environment:
+      FM_API_SERVER_URL: http://shellapi-e2e:3010
+      FM_LICENSE_SERVER_URL: http://licenser-e2e:3011/license
+      FM_BUILDER_DATADIR: /var/opt/fm
+    volumes:
+      - dockerdata:/var/opt/fm
+    depends_on:
+     - "shellapi-e2e"
+    networks:
+      - app-network-e2e
+
+  shellapi-e2e:
+    image: "remkolomna/webplanner:shellapi-${COMPOSE_PROJECT_NAME}"
+    build:
+      context: ../../ShellApi
+      dockerfile: Dockerfile
+    environment:
+      Database:ConnectionString: Server=postgres-e2e;Port=5432;Database=shell;Username=postgres;Password=gfhjkm;
+      Main:SiteUrl: http://nginx-e2e
+      Main:BuilderUrl: http://builder-e2e:5000/
+      Auth:Authority: http://nginx-e2e
+      ASPNETCORE_ENVIRONMENT: Staging
+      ASPNETCORE_URLS: http://*:3010;http://*:80
+    volumes:
+      - dockerdata:/var/opt/fm
+    depends_on:
+     - "postgres-e2e"
+    networks:
+      - app-network-e2e
+
+  licenser-e2e:
+    image: "remkolomna/webplanner:licenser-${COMPOSE_PROJECT_NAME}"
+    build:
+      context: ../../Licenser
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://*:3011
+      ASPNETCORE_ENVIRONMENT: Staging
+    networks:
+      - app-network-e2e
+
+  webplanner-e2e:
+    image: "remkolomna/webplanner:webplanner-${COMPOSE_PROJECT_NAME}"
+    container_name: "webplanner-${COMPOSE_PROJECT_NAME}"
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    command: yarn run ng e2e ${WP_TEST_PROJECT}
+    environment:
+      IS_CI: "true"
+    depends_on:
+     - "shellapi-e2e"
+    networks:
+      - app-network-e2e
+
+networks:
+  app-network-e2e:
+    driver: bridge
+
+volumes:
+  dockerdata:

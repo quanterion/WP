@@ -1,0 +1,23 @@
+<h3 mat-dialog-title>{{caption}}</h3>
+<mat-dialog-content>
+  <ng-container *ngIf="properties | async; let list; else loading">
+    <mat-nav-list *ngIf="list.length; else empty">
+      <mat-list-item class="property" *ngFor="let p of list" (click)="select.emit(p)" mat-dialog-close>
+        <mat-icon mat-list-icon>label</mat-icon>
+        <span mat-line class="item-name">{{p.name}}</span>
+        <p *ngIf="p.description" mat-line>{{p.description}}</p>
+      </mat-list-item>
+    </mat-nav-list>
+  </ng-container>
+  <ng-template #loading>
+    <span i18n>Loading properties...</span>
+  </ng-template>
+  <ng-template #empty>
+    <span i18n>There are no properties in catalog. Create a new property to continue</span>
+  </ng-template>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-raised-button  color="primary" mat-dialog-close (click)="select.emit(null)" i18n>CREATE NEW</button>
+  <span fxFlex></span>
+  <button mat-raised-button [mat-dialog-close]="undefined">CANCEL</button>
+</mat-dialog-actions>

@@ -1,0 +1,35 @@
+@import '~@angular/material/theming';
+
+:host {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+div {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+app-code-editor {
+    flex: auto;
+}
+
+div.image {
+    flex: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    max-width: 90%;
+}
+
+img {
+    @include mat-elevation(10);
+    max-height: 70vh;
+    object-fit: scale-down;
+}
+
+mat-toolbar {
+    flex: none;
+}

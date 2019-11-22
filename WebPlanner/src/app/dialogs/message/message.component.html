@@ -1,0 +1,7 @@
+<mat-icon class="message-icon">{{icon}}</mat-icon>
+<div class="message-labels">
+  <div *ngIf="label" class="message-label">{{label}}</div>
+  <div class="message-sublabel">
+    <ng-content></ng-content>
+  </div>
+</div>

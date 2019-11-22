@@ -1,0 +1,95 @@
+<mat-toolbar>
+  <button *ngIf="!selection.selected.length" mat-raised-button color="primary" (click)="goToUser(-1)">
+    <mat-icon>add</mat-icon>
+    <span i18n>NEW USER</span>
+  </button>
+  <button *ngIf="selection.selected.length" mat-raised-button color="accent" (click)="removeUsers(selection.selected)"
+      matTooltip="Delete selected users" i18n-matTooltip>
+    <mat-icon>delete</mat-icon>
+    <span i18n>DELETE</span>
+  </button>
+
+  <app-search-box fxFlex class="push-right push-left" backIcon="arrow_back"
+    i18n-placeholder placeholder="Search here" showUnderline="false" debounce="600"
+    (searchDebounce)="userList.filter = $event" (clear)="userList.filter = undefined">
+  </app-search-box>
+
+  <mat-form-field>
+    <mat-select [formControl]="userType">
+      <mat-option [value]="UserTypeFilter.All" i18n>All users</mat-option>
+      <mat-option [value]="UserTypeFilter.Registred" i18n>Registred</mat-option>
+      <mat-option [value]="UserTypeFilter.Imported" i18n>Imported</mat-option>
+      <mat-option [value]="UserTypeFilter.Stores" i18n>Stores</mat-option>
+      <mat-option [value]="UserTypeFilter.Sellers" i18n>Sellers</mat-option>
+      <mat-option [value]="UserTypeFilter.Locked" i18n>Locked</mat-option>
+      <mat-optgroup label="Roles" i18n-label>
+        <mat-option *ngFor="let role of roles$ | async" [value]="role.name">{{role.name}}</mat-option>
+      </mat-optgroup>
+    </mat-select>
+  </mat-form-field>
+
+  <span class="push-left mat-input" i18n>Total: {{userList.data.length}}</span>
+
+  <mat-menu xPosition="before" #adminMenu="matMenu" overlapTrigger="false">
+    <a mat-menu-item routerLink="/admin/users/roles" i18n>User roles</a>
+    <button mat-menu-item (click)="advColumn.next('projects')" i18n>Show projects</button>
+  </mat-menu>
+  <button mat-icon-button [matMenuTriggerFor]="adminMenu">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div *ngIf="usersUpdate$ | async; else loadingProgress"></div>
+
+<table mat-table [dataSource]="userList" matSort #sortForDataSource="matSort">
+  <ng-container matColumnDef="select">
+    <th mat-header-cell *matHeaderCellDef>
+      <mat-checkbox (change)="$event ? masterToggle() : null"
+                    [checked]="selection.hasValue() && isAllSelected()"
+                    [indeterminate]="selection.hasValue() && !isAllSelected()"
+                    matTooltip="Select all" i18n-matTooltip>
+      </mat-checkbox>
+    </th>
+    <td mat-cell *matCellDef="let row">
+      <mat-pseudo-checkbox (click)="$event.stopPropagation(); selection.toggle(row)"
+                    [state]="selection.isSelected(row) ? 'checked' : ''">
+      </mat-pseudo-checkbox>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef i18n>User</th>
+    <td mat-cell *matCellDef="let user">
+      <a [routerLink]="['/admin', 'user', user.id]">{{user.name}}</a>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="fullName">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header i18n>Name</th>
+    <td mat-cell *matCellDef="let p">
+      <span [class.disabled]="p.disabled">{{p.fullName}}</span>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="date">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header i18n>Date</th>
+    <td mat-cell *matCellDef="let p">
+      <span [class.disabled]="p.disabled">{{p.createdAt | date}}</span>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="email">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header i18n>E-mail</th>
+    <td mat-cell *matCellDef="let p">{{p.email}}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="projects">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header i18n>Projects</th>
+    <td mat-cell *matCellDef="let p">{{p.projects}}</td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns$ | async; sticky: true"></tr>
+  <tr mat-row *matRowDef="let user; columns: displayedColumns$ | async;" (click)="goToUser(user.id)"></tr>
+</table>
+
+<ng-template #loadingProgress>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  <div class="push" i18n>Loading user information...</div>
+</ng-template>

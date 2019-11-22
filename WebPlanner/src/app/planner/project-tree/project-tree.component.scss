@@ -1,0 +1,36 @@
+:host {
+    overflow: auto;
+    background: none;
+    display: flex;
+    align-items: flex-start;
+}
+
+.invisible {
+    display: none;
+}
+
+mat-tree {
+    flex: auto;
+}
+
+mat-tree ul, mat-tree li {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style-type: none;
+    cursor: pointer;
+}
+
+.mat-tree-node {
+    padding-right: 8px;
+}
+
+.selected {
+    background-color: deepskyblue;
+}
+
+span.price {
+    flex: auto;
+    text-align: right;
+    color: orange;
+    font-weight: bold;
+}

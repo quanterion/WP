@@ -1,0 +1,3 @@
+<app-code-editor #editor language="javascript" [value]="code$ | async"
+    (editorValueChange)="codeChanged()" (editorInitialized)="editorInitialized()"></app-code-editor>
+<button mat-raised-button color="primary" (click)="save(editor.value)" class="push" [disabled]="!changed" i18n>SAVE</button>

@@ -1,0 +1,36 @@
+<div class="logo">
+  <img src="./misc/logo.png">
+  <h2 class="mat-h2 pad-top" i18n>Login into WebPlanner</h2>
+</div>
+<form #loginForm="ngForm">
+  <h1 style="color: red">{{message}}</h1>
+  <mat-form-field>
+    <input matInput placeholder="User name" i18n-placeholder name="userName" ngModel requried (keyup.enter)="login(loginForm.value)">
+    <mat-icon class="push-right-sm" matPrefix>account_circle</mat-icon>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Password" i18n-placeholder
+      [type]="passwordVisible ? 'text' : 'password'" name="password"
+      ngModel requried (keyup.enter)="login(loginForm.value)">
+    <mat-icon class="push-right-sm" matPrefix>lock</mat-icon>
+    <mat-icon class="showpassword" matSuffix (click)="passwordVisible = !passwordVisible">{{!passwordVisible ? 'visibility' : 'visibility_off'}}</mat-icon>
+  </mat-form-field>
+  <div *ngIf="error" class="error-message pad-bottom-sm">
+    <app-message label="Error!" i18n-label
+      color="warn" icon="error">
+      <ng-container [ngSwitch]="error">
+        <span *ngSwitchCase="'user'" i18n>Invalid username</span>
+        <span *ngSwitchCase="'password'" i18n>Invalid password</span>
+        <span *ngSwitchCase="'locked'" i18n>User locked. Wait for a 5 minutes and try again.</span>
+        <span *ngSwitchDefault i18n>Unknown login error. Try again later.</span>
+      </ng-container>
+    </app-message>
+  </div>
+
+  <div fxLayout="column">
+      <button mat-raised-button color="primary" class="push-bottom-sm" (click)="login(loginForm.value)" i18n>Log me in</button>
+      <a routerLink="/account/resetpassword" color="primary" (click)="closeForm()" class="password-link" i18n>Forgot password?</a>
+      <a *ngIf="auth.settings.registrationEnabled" mat-raised-button
+        routerLink="/register" class="push-top" color="accent" (click)="closeForm()" i18n>Create an account</a>
+  </div>
+</form>

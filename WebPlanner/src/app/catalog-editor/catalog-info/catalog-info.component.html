@@ -1,0 +1,49 @@
+<h2 mat-dialog-title fxLayout="row" fxLayoutAlign="start center">
+  <span *ngIf="create" i18n>Create new catalog</span>
+  <ng-container *ngIf="!create">
+    <span class="flex-auto" i18n>Catalog parameters</span>
+    <div *ngIf="catalog.preview" class="image relative">
+      <img [src]="catalog | preview">
+      <button mat-raised-button color="warn" class="remove-thumbnail" (click)="removeThumbnail()">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <button *ngIf="!catalog.preview" mat-raised-button (click)="startUploadThumbnail()" i18n>ICON</button>
+
+    <td-file-input (select)="uploadThumbnail($event)" [style.display]="'none'" accept="image/*">
+    </td-file-input>
+  </ng-container>
+</h2>
+<mat-dialog-content>
+  <mat-form-field>
+    <input matInput placeholder="Catalog name" i18n-placeholder [formControl]="name" class="name">
+    <mat-error *ngIf="name.errors" i18n>Enter catalog name</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <input matInput placeholder="Catalog description" i18n-placeholder [formControl]="description">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Catalog type" i18n-placeholder [formControl]="type">
+      <mat-option [value]="0" i18n>Model</mat-option>
+      <mat-option [value]="1" i18n>Material</mat-option>
+      <mat-option [value]="2" *ngIf="auth.isAdmin | async" i18n>Planner</mat-option>
+      <mat-option [value]="3" i18n>Material & Model</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-select placeholder="Sharing" i18n-placeholder [formControl]="shared" class="shared">
+      <mat-option value="!" i18n>None</mat-option>
+      <mat-option value="*" i18n>All</mat-option>
+      <mat-optgroup label="Roles" i18n-label>
+        <mat-option *ngFor="let role of roles$ | async" [value]="role.name">{{role.name}}</mat-option>
+      </mat-optgroup>
+    </mat-select>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-raised-button mat-dialog-close i18n>CANCEL</button>
+  <button mat-raised-button color="primary" (click)="close()" [disabled]="!form.valid">
+    <span *ngIf="create" i18n>CREATE</span>
+    <span *ngIf="!create" i18n>SAVE</span>
+  </button>
+</mat-dialog-actions>

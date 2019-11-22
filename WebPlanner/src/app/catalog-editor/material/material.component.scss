@@ -1,0 +1,82 @@
+td-file-upload {
+  -webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+img.drop-target {
+  border: 2px dotted transparent;
+}
+
+img.drop-zone {
+  border: 2px dotted whitesmoke;
+  background-color: red;
+  opacity: 0.5;
+}
+
+img[matCardAvatar].drop-target {
+  width: 60px;
+  height: 60px;
+}
+
+table {
+    width: 100%;
+    text-align: left;
+}
+
+table td:nth-child(-n+4) div
+{
+  min-width: 100px;
+}
+
+mat-slider {
+  width: 100%;
+}
+
+.texture-button {
+  float: left;
+  margin-left: -16px; // to remove offset in <mat-card-title>
+  margin-top: -8px; // to remove offset in <mat-card-title>
+  margin-right: 8px;
+  display: inline-flex;
+}
+
+div.actions {
+  float: right;
+}
+
+.num-input {
+  width: 80px;
+}
+
+.width100 {
+  width: 100%;
+}
+
+img.texture-avatar {
+  margin: 4px;
+  vertical-align: middle;
+}
+
+mat-card.mat-card.compact {
+  margin: 0px;
+  padding-top: 8px;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+}
+
+mat-card-content.mat-card-content {
+  padding: 0px;
+  padding-top: 8px;
+  margin-bottom: 0px;
+}
+
+button.color-button {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}

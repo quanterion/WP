@@ -1,0 +1,52 @@
+<mat-card class="explorer" fxLayout="column">
+  <mat-toolbar>
+    <button *ngIf="canBack" mat-icon-button (click)="goBack()">
+      <mat-icon>reply</mat-icon>
+    </button>
+    <span fxFlex class="mat-subheading-2 heading">{{group?.name}}</span>
+    <button mat-icon-button (click)="close.next()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <mat-nav-list *ngIf="!groupMode" class='overflow-auto' fxFlex>
+    <mat-list-item *ngFor="let c of catalogs | async; trackBy: itemTrackBy" (click)="selectCatalog(c)">
+      <img matListAvatar class="push catalog-image" [src]="c | preview">
+      <span class="mat-body-1 catalog-name">{{c.name}}</span>
+    </mat-list-item>
+    <mat-list-item *ngFor="let c of sharedCatalogs | async; trackBy: itemTrackBy" (click)="selectCatalog(c)">
+      <img matListAvatar class="push catalog-image" [src]="c | preview">
+      <span class="mat-body-1 catalog-name">{{c.name}}</span>
+    </mat-list-item>
+  </mat-nav-list>
+
+  <div class="file-list" *ngIf="groupMode" fxFlex>
+    <ng-container *ngIf="group; else loading">
+      <div *ngFor="let m of group.materials; trackBy: itemTrackBy"
+        [draggable]="!isGroup(m)" class="file-item" [class.group]="isGroup(m)" [class.selected]="m.id === selectedId"
+        (click)="materialClick(m)" (dragstart)="dragStart($event, m)" (mouseup)="itemMouseUp($event, m)">
+        <div class="image-container">
+          <img class="material-image" [src]="m | thumbnail">
+        </div>
+        <div class="mat-body-1 item-name">{{m.name}}</div>
+      </div>
+      <div *ngIf="!group.materials.length" class="noitems" i18n>No items</div>
+    </ng-container>
+  </div>
+  <mat-toolbar>
+    <mat-form-field class="mode">
+      <mat-select (selectionChange)="modeChanged($event)" [value]="mode">
+        <mat-option [value]="0" i18n>Surface</mat-option>
+        <mat-option [value]="1" i18n>Selection</mat-option>
+        <mat-option *ngIf="room" [value]="3" i18n>Room</mat-option>
+        <mat-option *ngIf="walls" [value]="2" i18n>All walls</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <span fxFlex></span>
+    <button [disabled]="!(ds && undo)" mat-raised-button color="accent" (click)="apply()" class="push-left" fxFlex="1 0 auto" i18n>APPLY</button>
+  </mat-toolbar>
+</mat-card>
+
+<ng-template #loading>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</ng-template>

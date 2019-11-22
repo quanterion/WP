@@ -1,0 +1,39 @@
+:host {
+  display: block;
+  padding: 16px;
+}
+
+div.main {
+  margin: auto;
+}
+
+@media (min-width: 600px) {
+  div.main {
+    max-width: 800px;
+  }
+}
+@media (max-width: 599px) {
+  div.main {
+    max-width: 400px;
+  }
+}
+
+.btn-last {
+  float: right;
+}
+
+app-new-project {
+  margin: auto;
+}
+
+div.logo {
+    img {
+        display: block;
+        margin: auto;
+    }
+
+    h2 {
+        text-align: center;
+        color: gray;
+    }
+}

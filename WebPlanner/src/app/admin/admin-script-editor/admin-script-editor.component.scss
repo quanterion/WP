@@ -1,0 +1,13 @@
+:host {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+app-code-editor {
+    flex: auto;
+}
+
+button {
+    align-self: flex-end;
+}

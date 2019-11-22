@@ -1,0 +1,37 @@
+<h2 matDialogTitle i18n>Create a new project</h2>
+<mat-dialog-content class="push">
+  <form [formGroup]="form" fxLayout="column">
+    <mat-form-field>
+      <input matInput placeholder="Project name" i18n-placeholder [formControl]="name" class="name">
+      <mat-error *ngIf="name.errors" i18n>Enter project name</mat-error>
+    </mat-form-field>
+    <div class="push-top push-bottom room">
+      <span i18n>Room parameters</span>
+      <mat-radio-group *ngIf="templates" [formControl]="useTemplates">
+        <mat-radio-button [disableRipple]="true" class="push-left-xl" [value]="false" i18n>New room</mat-radio-button>
+        <mat-radio-button [disableRipple]="true" class="push-left" [value]="true" i18n>From template</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <h1 *ngIf="message" style="color: red">{{message}}</h1>
+    <ng-container *ngIf="!useTemplates.value">
+      <mat-form-field>
+        <input matInput placeholder="Length" i18n-placeholder type="number" [formControl]="length">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Width" i18n-placeholder type="number" [formControl]="width">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Height" i18n-placeholder type="number" [formControl]="height">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Wall thickness" i18n-placeholder type="number" [formControl]="thickness">
+      </mat-form-field>
+    </ng-container>
+    <div *ngIf="useTemplates.value" class="templates">
+      <div *ngFor="let template of templates" app-project-thumbnail [file]="template" (click)="createFromTemplate(template)"></div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions *ngIf="!useTemplates.value" align="end" fxFlex="initial">
+  <button mat-raised-button class="push-left" color="accent" (click)="createProject()" [disabled]="creating" i18n>CREATE</button>
+</mat-dialog-actions>

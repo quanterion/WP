@@ -1,0 +1,16 @@
+:host {
+    display: flex;
+    flex-direction: row;
+}
+
+mat-icon {
+    vertical-align: middle;
+}
+
+div.journal {
+    overflow-y: auto;
+}
+
+span.null {
+    color: blue;
+}

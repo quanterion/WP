@@ -1,0 +1,18 @@
+<div *ngIf="!(checkCompactView$ | async)">
+  <a i18n *ngIf="(auth.isAuthenticated | async) === false; else logout" class="login-button conf-button" mat-button
+    [routerLink]="['/login']">LOGIN</a>
+  <ng-template #logout>
+    <button mat-button [mat-menu-trigger-for]="menu" class="login-button conf-button">
+      <span i18n>MENU</span>
+    </button>
+    <mat-menu #menu="matMenu">
+      <ng-template matMenuContent>
+        <a mat-menu-item [routerLink]="['/account']">My profile</a>
+        <button mat-menu-item (click)="logoutOfTheAccount()">Logout</button>
+      </ng-template>
+    </mat-menu>
+  </ng-template>
+</div>
+
+
+<router-outlet></router-outlet>

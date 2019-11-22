@@ -1,0 +1,96 @@
+mat-sidenav {
+    width: 250px;
+}
+
+body {
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+
+  // Helps fonts on OSX looks more consistent with other systems
+  // Isn't currently in button styles due to performance concerns
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  mat-sidenav {
+    width: 250px;
+
+    [mat-button] {
+      width: 100%;
+      position: relative;
+      bottom: 0;
+      margin: 24px 0;
+    }
+  }
+
+  .demo-content {
+    padding: 32px;
+    display: flex;
+  }
+
+  mat-toolbar {
+    flex: none;
+    position: sticky;
+    top: 0px;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+}
+
+.page-content {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+    overflow: auto;
+    position: relative;
+    background-color: white;
+}
+
+app-store-home {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  z-index: 10000;
+  background-color: beige;
+}
+
+div.offline {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  z-index: 20000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  app-message {
+    color: #f44336;
+    background-color: rgba(64, 20, 16, 1);
+  }
+}
+
+div.backdrop {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  z-index: -1;
+  background-color: rgba(0, 0, 0, 0.5);
+}

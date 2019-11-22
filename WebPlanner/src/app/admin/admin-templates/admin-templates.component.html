@@ -1,0 +1,46 @@
+<form *ngIf="template$ | async; let template; else list" [formGroup]="form" fxLayout="column" class="flex-auto">
+  <mat-form-field class="push">
+    <input matInput placeholder="Template name" i18n-placeholder [formControl]="name" class="name">
+    <mat-error *ngIf="name.errors" i18n>Enter document template name</mat-error>
+  </mat-form-field>
+  <mat-tab-group class="flex-auto" animationDuration="0ms">
+    <mat-tab label="Template" i18n-label>
+      <ng-template matTabContent>
+        <app-code-editor language="html" [formControl]="templateControl"></app-code-editor>
+      </ng-template>
+    </mat-tab>
+    <mat-tab *ngIf="template.type === TemplateType.Print" label="Style" i18n-label>
+      <ng-template matTabContent>
+        <app-code-editor language="css" [formControl]="style"></app-code-editor>
+      </ng-template>
+    </mat-tab>
+    <mat-tab *ngIf="template.type === TemplateType.Print" label="Parameters" i18n-label>
+      <app-form-builder [elements]="template.params.form || []"></app-form-builder>
+    </mat-tab>
+  </mat-tab-group>
+  <div class="footer push">
+    <button mat-raised-button color="primary" (click)="save(template)" class="save">
+      <span *ngIf="template.id" i18n>SAVE TEMPLATE</span>
+      <span *ngIf="!template.id" i18n>CREATE TEMPLATE</span>
+    </button>
+  </div>
+</form>
+
+<ng-template #list>
+  <mat-nav-list *ngIf="templates$ | async; let templates">
+    <a *ngFor="let template of templates" mat-list-item routerLink="." [queryParams]="{id: template.id}">
+      <mat-icon *ngIf="template.type === TemplateType.Print" matListIcon>print</mat-icon>
+      <mat-icon *ngIf="template.type === TemplateType.Email" matListIcon>email</mat-icon>
+      <mat-icon *ngIf="template.type === TemplateType.Xml" matListIcon>save_alt</mat-icon>
+      <span class="flex-auto">{{template.name}}</span>
+      <button mat-icon-button (click)="removeTemplate($event, template)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </a>
+  </mat-nav-list>
+  <div class="empty text-center">
+    <a mat-raised-button color="primary" [routerLink]=[] [queryParams]="{id: 'new-report'}" class="push-right" i18n>CREATE REPORT</a>
+    <a mat-raised-button color="primary" [routerLink]=[] [queryParams]="{id: 'new-email'}" class="push-right" i18n>CREATE EMAIL</a>
+    <a mat-raised-button color="primary" [routerLink]=[] [queryParams]="{id: 'new-xml'}" i18n>CREATE XML</a>
+  </div>
+</ng-template>

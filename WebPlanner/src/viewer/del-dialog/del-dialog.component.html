@@ -1,0 +1,9 @@
+<h1 i18n mat-dialog-title>Delete {{name}}?</h1>
+<mat-dialog-content>
+  <p i18n>Are you sure?</p>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button [mat-dialog-close]="false" (click)="close()"><span i18n>No</span></button>
+  <button mat-button [mat-dialog-close]="true" cdkFocusInitial><span i18n>Yes</span></button>
+</mat-dialog-actions>
+

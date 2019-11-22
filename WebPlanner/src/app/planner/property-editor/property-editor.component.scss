@@ -1,0 +1,74 @@
+:host {
+    display: flex;
+    flex-direction: column;
+}
+
+div.fill-space {
+    flex: auto;
+}
+
+table {
+    border-collapse: collapse;
+    margin-right: 4px;
+}
+
+table tr {
+    border-bottom-color: rgba(0, 0, 0, 0.12);
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    height: 54px; // works for tr as min-height
+}
+
+td {
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+td:first-child {
+    padding-left: 12px;
+}
+
+td select {
+    width: 100%;
+}
+
+td.mat-cell {
+    padding: 8px;
+    text-align: center;
+}
+
+.property-table {
+    width: 100%;
+}
+
+button.advcopy {
+    padding-right: 0px;
+}
+
+h4 {
+    margin: 0px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+mat-form-field[appearance="outline"], mat-form-field.editable {
+    margin-bottom: -1.3em;
+}
+
+button[mat-button] {
+    margin: 8px;
+}
+
+hr {
+    border: none;
+    // TODO: theme support
+    border-bottom: solid 1px rgba(0, 0, 0, 0.12);
+}
+
+img {
+    vertical-align: middle;
+}

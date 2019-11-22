@@ -1,0 +1,88 @@
+<div *ngIf="status | async; let stat; else loading" class="pad">
+    <h3>Builder:</h3>
+    <div>Ping: {{ stat.ping }}</div>
+    <div>Clients: {{ stat.clients }}</div>
+    <div>Models: {{ stat.models }}</div>
+    <div>Threads: {{ stat.threads }}</div>
+    <div>Free space: {{ stat.space | bytes }}</div>
+    <div>Archive space: {{ stat.archiveSpace | bytes }}</div>
+    <hr>
+    <div *ngIf="superAdmin()" class="push-top">
+        <h3>CMS:</h3>
+        <div class="push">
+            <button mat-raised-button (click)="cleanup()" i18n>CLEANUP</button>
+            <span class="push-left">{{ cleanupInfo }}</span>
+        </div>
+        <div class="push">
+            <button mat-raised-button (click)="closeModels()" i18n>CLOSE MODELS</button>
+        </div>
+        <div class="push">
+            <button mat-raised-button (click)="backup()" i18n>BACKUP TOOL</button>
+            <app-job-progress-bar *ngIf="backupProgress$" [value]="backupProgress$ | async" #bar>
+                <app-message *ngIf="bar.value && bar.value.result" color="primary" icon="info" i18n>Backup finished</app-message>
+            </app-job-progress-bar>
+        </div>
+        <h3>Database:</h3>
+        <div fxLayout="row">
+            <mat-form-field fxFlex>
+                <textarea matInput placeholder="Sql query" [formControl]="sqlInput"></textarea>
+            </mat-form-field>
+            <button mat-raised-button (click)="runSql()" fxFlexAlign="start">RUN</button>
+        </div>
+        <ng-container *ngIf="sqlQuery | async as query">
+            <table mat-table [dataSource]="query.rows">
+                <ng-container [matColumnDef]="column" *ngFor="let column of query.fields">
+                    <th mat-header-cell *matHeaderCellDef> {{column}} </th>
+                    <td mat-cell *matCellDef="let element">
+                        <span *ngIf="element[column] === null" class="null">null</span> {{element[column]}}
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="query.fields"></tr>
+                <tr mat-row *matRowDef="let row; columns: query.fields;"></tr>
+            </table>
+            <span>Records affected: {{query.recordsAffected}}</span>
+        </ng-container>
+    </div>
+</div>
+<mat-divider [vertical]="true"></mat-divider>
+<div fxFlex fxLayout="column" class="journal">
+    <mat-toolbar fxFlex="none">
+        <span i18n fxFlex class="push-right-xl" i18n>Journal:</span>
+        <mat-checkbox name="journalErrorsOnly" [formControl]="journalErrorsOnly" i18n>Errors only</mat-checkbox>
+        <mat-form-field class="push-left-lg">
+            <mat-select name="journalDays" [formControl]="journalDays">
+                <mat-option [value]="1" i18n>Today</mat-option>
+                <mat-option [value]="7" i18n>Last week</mat-option>
+                <mat-option [value]="30" i18n>Last month</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <button *ngIf="superAdmin()" mat-icon-button>
+      <mat-icon (click)="clearJournal()">delete</mat-icon>
+    </button>
+    </mat-toolbar>
+    <table *ngIf="journal | async; let list; else loading" fxFlex mat-table [dataSource]="list">
+        <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef i18n>Date</th>
+            <td mat-cell *matCellDef="let event">
+                <mat-icon [color]="eventColor(event)">{{eventIcon(event)}}</mat-icon>
+                {{event.date | date:'medium'}}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="message">
+            <th mat-header-cell *matHeaderCellDef i18n>Message</th>
+            <td mat-cell *matCellDef="let event">
+                <span *ngIf="!event.link">{{event.message}}</span>
+                <a *ngIf="event.link" [routerLink]="event.link">{{event.message}}</a>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="journalColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: journalColumns;"></tr>
+    </table>
+</div>
+
+<ng-template #loading>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <div class="push" i18n>Loading information...</div>
+</ng-template>

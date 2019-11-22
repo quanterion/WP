@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>WebPlanner</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <style>
+      @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(359deg); }
+      }
+
+      body {
+        margin: 0px;
+      }
+
+      .loading {
+        background: #0D47A1;
+        background-image: linear-gradient(130deg, #0D47A1, #42A5F5);
+        height: 100%;
+        opacity: 0;
+        position: fixed;
+        transition: opacity .8s ease-in-out;
+        width: 100%;
+        z-index: -1;
+      }
+
+      app-embed-root:empty + .loading {
+        opacity: 1;
+        z-index: 100;
+      }
+
+      app-embed-root:empty + .loading i {
+        animation: rotate 2s infinite linear;
+        color: #FFF;
+        font-size: 5em;
+        position: absolute;
+        text-align: center;
+        /*top = 50% - font-size divided by 2*/
+        top: calc(50% - 40px);
+        transform: translate(0, -50%);
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script>
+      var host = window.location.hostname;
+      if (host !== "localhost") {
+        var rus = host.indexOf('.ru') > 0;
+        var trackId = rus ? 'UA-89934436-2' : 'UA-89934436-1';
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        ga('create', trackId, 'auto');
+      }
+    </script>
+    <app-embed-root></app-embed-root>
+    <div class="loading">
+      <i class="material-icons">refresh</i>
+    </div>
+  </body>
+</html>
+<link rel="stylesheet" class="wp-custom-style" href="/api/system/embedstyle">

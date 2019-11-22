@@ -1,0 +1,76 @@
+version: '2.1'
+
+services:
+
+  nginx:
+    container_name: nginx
+    image: 'remkolomna/webplanner:nginx'
+    build:
+      context: ../nginx
+      dockerfile: Dockerfile
+    volumes:
+      - ./docker-data:/var/opt/fm
+    ports:
+      - "10080:80"
+      - "10443:443"
+    depends_on:
+     - "builder"
+    networks:
+      - app-network
+
+  postgres:
+    container_name: 'postgres'
+    image: postgres:10.1
+    environment:
+      POSTGRES_PASSWORD: gfhjkm
+    networks:
+      - app-network
+
+  builder:
+    container_name: 'builder'
+    image: 'remkolomna/webplanner:builder'
+    build:
+      context: ../Builder
+      dockerfile: Dockerfile
+    environment:
+      FM_API_SERVER_URL: http://shellapi:3010
+      FM_LICENSE_SERVER_URL: http://licenser:3011/license
+      FM_BUILDER_DATADIR: /var/opt/fm
+    volumes:
+      - ./docker-data:/var/opt/fm
+    depends_on:
+     - "shellapi"
+    networks:
+      - app-network
+
+  shellapi:
+    container_name: 'shellapi'
+    image: 'remkolomna/webplanner:shellapi'
+    build:
+      context: ../ShellApi
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+      ASPNETCORE_URLS: http://*:3010;http://*:80
+    volumes:
+      - ./docker-data:/var/opt/fm
+    depends_on:
+     - "postgres"
+    networks:
+      - app-network
+
+  licenser:
+    container_name: 'licenser'
+    image: 'remkolomna/webplanner:licenser'
+    build:
+      context: ../Licenser
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://*:3011
+      ASPNETCORE_ENVIRONMENT: Staging
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

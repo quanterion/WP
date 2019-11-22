@@ -1,0 +1,39 @@
+<div fxLayout="column" class="selector-form">
+  <div class="toolbar" fxLayout="row" fxLayoutAlign="start center" fxFlex="none">
+    <span class="caption">{{caption}}</span>
+    <span fxFlex></span>
+    <app-search-box *ngIf="materialList.length > 0"
+      fxFlex class="push-right"
+      placeholder="Search here" i18n-placeholder
+      [showUnderline]="true"
+      [debounce]="500"
+      (searchDebounce)="searchInputTerm = $event"
+      (search)="searchInputTerm = $event"
+      (clear)="searchInputTerm = ''">
+    </app-search-box>
+    <mat-form-field *ngIf="displayCatalogs">
+      <mat-select
+        placeholder="Catalog" i18n-placeholder floatPlaceholder="always"
+        [(ngModel)]="catalogId"
+        (selectionChange)="selectCatalog($event)">
+        <mat-option *ngFor="let c of myCatalogs" [value]="c.id">{{ c.name }}</mat-option>
+        <mat-option *ngFor="let c of sharedCatalogs" [value]="c.id">{{ c.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <mat-grid-list *ngIf="viewMode" fxFlex="auto" cols="8">
+    <mat-grid-tile *ngFor="let m of filteredList" (click)="select.emit(m)" class="material">
+      <img [src]="m | thumbnail" [matTooltip]="m.name">
+    </mat-grid-tile>
+  </mat-grid-list>
+  <mat-nav-list *ngIf="!viewMode" fxFlex="auto">
+    <a mat-list-item *ngFor="let m of filteredList" (click)="select.emit(m)">
+      <img mat-list-avatar [src]="m | thumbnail" class="push-right-sm">
+      <span class="item-name">{{m.name}}</span>
+    </a>
+  </mat-nav-list>
+  <button *ngIf="canCreateMaterial" mat-raised-button color="primary" (click)="createMaterial(searchInputTerm)">
+    <mat-icon class="md-24">add</mat-icon>
+    <span i18n>CREATE MATERIAL: {{searchInputTerm}}</span>
+  </button>
+</div>

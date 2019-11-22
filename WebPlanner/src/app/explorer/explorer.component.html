@@ -1,0 +1,6 @@
+<mat-card *ngFor="let c of files |async" [routerLink]="['/project', c.id]">
+  <h3>
+    <mat-icon>folder</mat-icon>
+    <a [routerLink]="['/project', c.id]">{{c.name}}</a>
+  </h3>  
+</mat-card>

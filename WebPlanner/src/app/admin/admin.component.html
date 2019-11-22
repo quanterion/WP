@@ -1,0 +1,26 @@
+<nav *ngIf="auth.admin; else nonAuthorized" mat-tab-nav-bar class="pad">
+  <a mat-tab-link routerLinkActive #rlSettings="routerLinkActive" [active]="rlSettings.isActive" routerLink="/admin/settings"
+    i18n>Settings</a>
+  <a mat-tab-link routerLinkActive #rlUsers="routerLinkActive" [active]="rlUsers.isActive" routerLink="/admin/users"
+    i18n>Users</a>
+  <a mat-tab-link routerLinkActive #rlPrices="routerLinkActive" [active]="rlPrices.isActive" routerLink="/admin/prices"
+    i18n>Pricelists</a>
+  <a mat-tab-link routerLinkActive #rlTemplates="routerLinkActive" [active]="rlTemplates.isActive" routerLink="/admin/templates"
+    i18n>Templates</a>
+  <a mat-tab-link routerLinkActive #rlContent="routerLinkActive" [active]="rlContent.isActive" routerLink="/admin/content"
+    i18n>Content</a>
+  <a mat-tab-link routerLinkActive #rlStyle="routerLinkActive" [active]="rlStyle.isActive" routerLink="/admin/style"
+    i18n>Style</a>
+  <a mat-tab-link routerLinkActive #rlScript="routerLinkActive" [active]="rlScript.isActive" routerLink="/admin/script"
+    i18n>Script</a>
+  <a mat-tab-link routerLinkActive #rlStatus="routerLinkActive" [active]="rlStatus.isActive" routerLink="/admin/status"
+    i18n>Status</a>
+</nav>
+
+<ng-template #nonAuthorized>
+  <app-message color="warn" i18n>Admin area</app-message>
+</ng-template>
+
+<div [class.hidden]="!auth.admin" class="flex-auto flex-column">
+  <router-outlet></router-outlet>
+</div>

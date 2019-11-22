@@ -1,0 +1,128 @@
+<ng-container *ngIf="projectView$ | async; let projectView">
+  <mat-toolbar *ngIf="!projects">
+    <span *ngIf="projectView === 1" i18n>Gallery</span>
+    <span *ngIf="projectView === 2" i18n>My projects</span>
+    <span *ngIf="projectView === 3" i18n>Templates</span>
+    <button *ngIf="projectView > 1 && !userId" mat-raised-button (click)="newPlan(projectView)" class="push-left" color="primary">
+      <mat-icon>add</mat-icon>
+      <span i18n>CREATE</span>
+    </button>
+    <app-search-box *ngIf="!handset" fxFlex class="push-right push-left" backIcon="arrow_back"
+      i18n-placeholder placeholder="Search here" showUnderline="false"
+      (searchDebounce)="runSearch($event)" (clear)="runSearch(undefined)">
+    </app-search-box>
+    <ng-container *ngIf="projectView === 1 && auth.admin && !userId">
+      <mat-form-field *ngIf="shops$ | async; let shops" floatLabel="never" class="push-right-lg search" matTooltip="Shops" i18n-matTooltip>
+        <mat-icon>store</mat-icon>
+        <mat-select [formControl]="shopControl" name="sortMode">
+          <mat-option [value]="0" i18n>All projects</mat-option>
+          <mat-option *ngFor="let shop of shops" [value]="shop.id">{{shop.fullName || shop.name}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
+    <mat-form-field floatLabel="never" class="push-right-lg search" matTooltip="Sort by" i18n-matTooltip>
+      <mat-icon>sort</mat-icon>
+      <mat-select [formControl]="sortControl" name="sortMode" [value]="undefined">
+        <mat-option value="date" i18n>By date</mat-option>
+        <mat-option value="name" i18n>By name</mat-option>
+        <mat-option value="price" i18n>By Price</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-button-toggle-group [value]="viewMode" (change)="viewMode = $event.value" matTooltip="View mode" i18n-matTooltip>
+      <mat-button-toggle value="table">
+        <mat-icon>view_list</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="grid">
+        <mat-icon>view_module</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <mat-checkbox *ngIf="projectView === 1 && auth.admin" class="push-left" [formControl]="checkPrivate" i18n>Private</mat-checkbox>
+  </mat-toolbar>
+  <div class="projects-view" *ngIf="authOk | async; else authMessage">
+    <div *ngIf="files$ | async; let files; else loading" class="files">
+      <ng-container *ngIf="files.list.length > 0; else empty">
+        <ng-container *ngIf="viewMode === 'grid'">
+          <a *ngFor="let file of files.list" app-project-thumbnail [file]="file" [routerLink]="['/project', file.id]"></a>
+        </ng-container>
+        <mat-table *ngIf="viewMode === 'table'" [dataSource]="files.list">
+          <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef i18n>Name</mat-header-cell>
+            <mat-cell *matCellDef="let file" class="name">
+              <a [routerLink]="['/project', file.id]">
+                <img [src]="file | preview">
+                <span>{{file.name}}</span>
+              </a>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="date">
+            <mat-header-cell *matHeaderCellDef i18n>Date modified</mat-header-cell>
+            <mat-cell *matCellDef="let file">
+              <span>{{file.modifiedAt | wpTimeAgo}}</span>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="ownerName">
+            <mat-header-cell *matHeaderCellDef i18n>Author</mat-header-cell>
+            <mat-cell *matCellDef="let file" [routerLink]="['/admin', 'user', file.ownerId]">
+              <a fxFlex *ngIf="projectView === 1 && auth.admin" [routerLink]="['/admin', 'user', file.ownerId]">{{file.ownerName}}</a>
+              <span fxFlex *ngIf="projectView !== 1 || !auth.admin">{{file.ownerName}}</span>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="client">
+            <mat-header-cell *matHeaderCellDef i18n>Client</mat-header-cell>
+            <mat-cell *matCellDef="let file" fxLayout="row">
+              <div fxFlex>
+                <ng-container *ngIf="file.order && file.order.client" >
+                  <span>{{file.order.client.name}}</span>
+                  <span *ngIf="file.order.client.phone" class="push-left">({{file.order.client.phone}})</span>
+                </ng-container>
+              </div>
+              <button *ngIf="canRemove(file)" mat-icon-button (click)="removeProject($event, file)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="price">
+            <mat-header-cell *matHeaderCellDef i18n>Price</mat-header-cell>
+            <mat-cell *matCellDef="let file" fxLayout="row">
+              <span *ngIf="file.price">{{file.price}} &#8381;</span>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="files.columns; sticky: true"></mat-header-row>
+          <mat-row *matRowDef="let file; columns: files.columns;" [routerLink]="['/project', file.id]"></mat-row>
+        </mat-table>
+        <button *ngIf="files.list.length === skipCount.value + PAGE_SIZE" mat-raised-button class="push btn-more" color="primary" (click)="displayMoreProjects()" i18n>MORE</button>
+      </ng-container>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #loading>
+  <div i18n class="message" i18n>Loading project list...</div>
+</ng-template>
+
+<ng-template #authMessage>
+  <div i18n class="message" i18n>You should login to view this page</div>
+</ng-template>
+
+<ng-template #empty>
+  <div *ngIf="projectView$ | async; let projectView"
+    fxLayout="column" fxLayoutAlign="center center" class="tc-grey-500 pad">
+    <ng-container *ngIf="!(search | async); else emptySearch">
+      <mat-icon matListAvatar>filter_none</mat-icon>
+      <span *ngIf="projectView === 1" class="mat-subhead" i18n>There is no projects to view</span>
+      <span *ngIf="projectView === 2" class="mat-subhead" i18n>Projects you create will live here</span>
+      <button *ngIf="projectView === 2" mat-raised-button
+        color="accent" (click)="newPlan(projectView)"
+        class="text-upper push-md" i18n>CREATE</button>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #emptySearch>
+  <div i18n class="message" i18n>No projects found</div>
+</ng-template>

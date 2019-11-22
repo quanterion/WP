@@ -1,0 +1,14 @@
+<mat-dialog-content>
+  <div class="logo">
+      <img src="./misc/logo.png">
+  </div>
+  <ng-container *ngIf="response$ | async; let response; else progress">
+    <div *ngIf="response.ok" class="push text-center" i18n>Order successfully send</div>
+    <div *ngIf="!response.ok" class="push text-center" i18n>Failed to send order {{response.error}}</div>
+  </ng-container>
+</mat-dialog-content>
+
+<ng-template #progress>
+  <div class="push text-center" i18n>Sending order. Please wait...</div>
+  <mat-progress-bar mode="indeterminate" class="push"></mat-progress-bar>
+</ng-template>

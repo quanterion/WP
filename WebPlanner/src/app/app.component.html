@@ -1,0 +1,47 @@
+<mat-sidenav-container fullscreen>
+  <mat-sidenav #start>
+    <mat-nav-list menu-items>
+      <a *ngIf="!auth.userId" mat-list-item routerLinkActive="active" routerLink="home" (click)="start.close()" i18n>Homepage</a>
+      <a *ngIf="auth.isAuthenticated | async"
+        mat-list-item routerLinkActive="active" routerLink="projects" (click)="start.close()" i18n>My projects</a>
+      <a mat-list-item routerLinkActive="active" routerLink="gallery" (click)="start.close()" i18n>Gallery</a>
+      <a *ngIf="!auth.hasRole('seller')" mat-list-item routerLinkActive="active" routerLink="catalog/list" (click)="start.close()" i18n>Catalogs</a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <div fxLayout="column" class="page-content" fxFlex>
+    <mat-toolbar color="primary" class="top-toolbar">
+      <button mat-icon-button (click)="start.open()" class="start-menu">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="wp-header">{{appName()}}</span>
+      <span class="push-right" fxFlex></span>
+      <button *ngIf="canLogin" mat-raised-button color="accent" (click)="loginClick()" i18n>Login</button>
+      <button *ngIf="auth.isAuthenticated | async"
+        class="user-menu"
+        [matMenuTriggerFor]="userMenu" yPosition="above"
+        mat-raised-button color="primary">
+        <span>{{ userName }}</span>
+        <mat-icon class="md-24" >keyboard_arrow_down</mat-icon>
+      </button>
+      <button mat-raised-button *ngIf="auth.reloadUrl" class="push-left" color="accent" (click)="auth.returnToLastUser()" i18n>BACK</button>
+    </mat-toolbar>
+    <div fxLayout="column" fxFlex class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</mat-sidenav-container>
+
+<app-store-home *ngIf="storeMode$ | async"></app-store-home>>
+
+<mat-menu #userMenu="matMenu" [overlapTrigger]="false">
+  <a mat-menu-item *ngIf="auth.isAdmin | async" routerLinkActive="active" routerLink="/admin" i18n>Admin panel</a>
+  <a mat-menu-item routerLinkActive="active" routerLink="/account" i18n>Account</a>
+  <button mat-menu-item (click)="logoutClick()" i18n>Logout</button>
+</mat-menu>
+
+<div *ngIf="auth.offline$ | async" class="offline">
+  <div class="backdrop"></div>
+  <app-message color="warn" label="Error" i18n-label>
+    <span i18n>Internet disconnected</span>
+  </app-message>
+</div>

@@ -1,0 +1,62 @@
+<div mat-dialog-content class="overflow-hidden mat-typography" [style.display]="'contents'"
+  *ngIf="uploadResponse$ | async; let response; else wait">
+  <ng-container *ngIf="response.progress || response.progress === 0">
+    <h3 class="text-center push-bottom-sm" i18n>Uploading file {{info.files[response.curFileIndex].name}}</h3>
+    <h3 *ngIf="info.files.length > 1" class="text-center push-bottom-sm" i18n>{{response.curFileIndex + 1}} of
+      {{info.files.length}}
+    </h3>
+    <mat-progress-bar [mode]="getProgressMode(response)" [value]="response.progress"></mat-progress-bar>
+    <div class="text-center push-top">
+      <span *ngIf="response.progress === -3" i18n>Please wait...</span>
+      <span *ngIf="response.progress === -2" i18n>Compression</span>
+      <span *ngIf="response.progress === -1" i18n>Preparing...</span>
+      <span *ngIf="response.progress === 100" i18n>Convertation</span>
+      <span *ngIf="response.progress >= 0 && response.progress < 100" i18n>Uploading {{response.progress}}%</span>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="response.error && (!isUploadComplete(response) || info.files.length === 1)">
+    <app-message label="Error" i18n-label color="warn" icon="error">
+      <span i18n>{{response.error}}</span>
+    </app-message>
+  </ng-container>
+  <ng-container *ngIf="isUploadComplete(response) && response.uploaded && response.uploaded.length > 0">
+    <h3 class="uploadMessage" *ngIf="info.files.length === 1" i18n>File {{info.files[0].name}} successfully uploaded!</h3>
+    <h3 class="uploadMessage" *ngIf="info.files.length > 1" i18n>{{response.uploaded.length}} of {{info.files.length}}
+      successfully uploaded!
+    </h3>
+    <mat-nav-list *ngIf="!info.hideModelLinks">
+      <mat-list-item *ngFor="let file of response.uploaded">
+        <a [routerLink]="getModelLink(file)" (click)="close()">
+          <span>{{file.name}}</span>
+          <mat-icon i18n-matTooltip matTooltip="Open" matTooltipPosition="right">open_in_browser</mat-icon>
+        </a>
+        <mat-divider></mat-divider>
+      </mat-list-item>
+    </mat-nav-list>
+  </ng-container>
+  <mat-list *ngIf="response.failed && response.failed.length > 0 && isUploadComplete(response) && info.files.length > 1">
+    <h3 [style.color]="'red'" i18n>Failed to import {{response.failed.length}} files:</h3>
+    <mat-list-item [style.display]="'block'" *ngFor="let f of response.failed">
+      <div [style.width.%]="100" fxLayout>
+        <span fxFlex>{{f.name}}</span>
+        <ng-container [ngSwitch]="errorStatuses[response.failed.indexOf(f)]">
+          <span fxFlex fxLayoutAlign="end" *ngSwitchCase="413" i18n>Too large uploading file</span>
+          <span fxFlex fxLayoutAlign="end" *ngSwitchCase="500" i18n>Internal server error</span>
+          <span fxFlex fxLayoutAlign="end" *ngSwitchCase="504" i18n>Gateway timeout</span>
+          <span fxFlex fxLayoutAlign="end" *ngSwitchCase="-2" i18n>Import error</span>
+          <span fxFlex fxLayoutAlign="end" *ngSwitchDefault i18n>Unknown error ({{errorStatuses[response.failed.indexOf(f)]}})</span>
+        </ng-container>
+      </div>
+    </mat-list-item>
+  </mat-list>
+  <mat-dialog-actions align="end">
+    <button *ngIf="isUploadComplete(response)" mat-button [mat-dialog-close]="true" i18n>CLOSE</button>
+    <button *ngIf="!isUploadComplete(response)" mat-button [mat-dialog-close]="false" i18n>CANCEL</button>
+  </mat-dialog-actions>
+</div>
+<ng-template #wait>
+  <h3 mat-dialog-title i18n>Please wait...</h3>
+  <mat-dialog-actions align="end">
+    <button mat-button [mat-dialog-close]="false" i18n>CANCEL</button>
+  </mat-dialog-actions>
+</ng-template>
